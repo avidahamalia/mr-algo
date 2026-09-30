@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mr. ALGO - CPU Assembly Battle Game (Single & Dual Player)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#080b12',
+                            card: '#101522',
+                            border: '#1c2638',
+                            p1: '#00f0ff',
+                            p2: '#ff0055',
+                            accent: '#7000ff',
+                            yellow: '#ffe600',
+                            green: '#00ff66'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        code: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #05070c;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .block-btn {
+            touch-action: none;
+            cursor: grab;
+            user-select: none;
+            will-change: transform;
+        }
+        .block-btn:active {
+            cursor: grabbing;
+        }
+
+        .custom-scrollbar {
+            touch-action: pan-y;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #080b12; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1c2638;
+            border-radius: 4px;
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .lkpd-table th, .lkpd-table td {
+            border: 1px solid #1c2638;
+            padding: 2px;
+            text-align: center;
+        }
+
+        /* Fixed / Sticky Header */
+        .sticky-header-row-1 {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        .sticky-header-row-2 {
+            position: sticky;
+            top: 21px;
+            z-index: 19;
+        }
+
+        .cell-drop-target {
+            width: 100%;
+            height: 24px;
+            background: #000000;
+            border: 1px solid #2d3748;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            transition: background-color 0.1s, border-color 0.1s;
+            touch-action: none;
+            cursor: pointer;
+        }
+        .cell-drop-target:hover {
+            border-color: #00f0ff;
+        }
+        .cell-correct {
+            border-color: #00ff66 !important;
+            background-color: #043818 !important;
+            color: #00ff66 !important;
+        }
+        .cell-wrong {
+            border-color: #ff0055 !important;
+            background-color: #420616 !important;
+            color: #ff4d79 !important;
+        }
+
+        .drop-target-p1-hover {
+            outline: 2px solid #00f0ff !important;
+            background-color: rgba(0, 240, 255, 0.25) !important;
+        }
+        .drop-target-p2-hover {
+            outline: 2px solid #ff0055 !important;
+            background-color: rgba(255, 0, 85, 0.25) !important;
+        }
+
+        .selected-block-p1 {
+            outline: 2px solid #00f0ff;
+            box-shadow: 0 0 8px #00f0ff;
+        }
+        .selected-block-p2 {
+            outline: 2px solid #ff0055;
+            box-shadow: 0 0 8px #ff0055;
+        }
+
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.95;
+            transform: translate(-50%, -50%) scale(1.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+            will-change: left, top;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-screen grid-bg flex flex-col justify-between overflow-x-hidden md:overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="bg-cyber-dark border-b border-cyber-border px-3 py-2 flex flex-wrap justify-between items-center z-40 gap-2">
+        <div class="flex items-center space-x-2">
+            <div class="bg-gradient-to-r from-cyber-p1 to-cyber-accent p-1.5 rounded-lg text-black font-black text-base">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-sm md:text-base tracking-wider text-white">MR. ALGO <span id="modeBadge" class="text-cyber-yellow text-[10px] px-1.5 py-0.5 rounded border border-cyber-yellow/40 bg-cyber-yellow/10">SINGLE PLAYER</span></h1>
+                <p class="text-[9px] text-gray-400">Informatika SMA - Machine Code Game</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-1.5 md:space-x-3 flex-wrap">
+            <button onclick="toggleModal('setupModal')" class="bg-cyber-p1/20 hover:bg-cyber-p1 text-cyber-p1 hover:text-black border border-cyber-p1/60 font-orbitron text-[10px] md:text-xs font-semibold px-2 py-1 rounded-lg transition-colors flex items-center">
+                <i class="fa-solid fa-gamepad mr-1"></i> Mode Game
+            </button>
+
+            <button onclick="toggleModal('leaderboardModal')" class="bg-cyber-yellow/20 hover:bg-cyber-yellow text-cyber-yellow hover:text-black border border-cyber-yellow/60 font-orbitron text-[10px] md:text-xs font-semibold px-2 py-1 rounded-lg transition-colors flex items-center">
+                <i class="fa-solid fa-trophy mr-1"></i> Leaderboard
+            </button>
+
+            <div class="flex items-center space-x-1">
+                <select id="scenarioSelect" onchange="changeScenario()" class="bg-cyber-card border border-cyber-border text-cyber-yellow font-code text-[11px] rounded-lg px-2 py-1 focus:outline-none cursor-pointer">
+                </select>
+                <button onclick="pickRandomScenario()" class="bg-cyber-dark hover:bg-cyber-card text-cyber-p1 border border-cyber-border font-orbitron text-[10px] p-1.5 rounded-lg">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center bg-cyber-card border border-cyber-border px-2 py-1 rounded-lg">
+                <i class="fa-solid fa-stopwatch text-cyber-yellow mr-1 text-xs"></i>
+                <span id="globalTimer" class="font-orbitron text-xs font-bold text-white">03:00</span>
+            </div>
+
+            <button onclick="resetMatch()" class="bg-cyber-accent/30 hover:bg-cyber-accent text-white border border-cyber-accent/60 font-orbitron text-[10px] md:text-xs font-semibold px-3 py-1 rounded-lg transition-colors flex items-center">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN GAME FIELD -->
+    <main id="mainGameGrid" class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 overflow-y-auto lg:overflow-hidden">
+        
+        <!-- PLAYER 1 (UTAMA / SINGLE PLAYER) -->
+        <section id="p1-container" class="bg-cyber-card border-2 border-cyber-p1/60 rounded-xl p-2 flex flex-col justify-between relative h-full">
+            <div class="flex justify-between items-center border-b border-cyber-border pb-1">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyber-p1"></span>
+                    <h2 id="p1-label-name" class="font-orbitron font-extrabold text-cyber-p1 text-sm md:text-base tracking-wider">PLAYER 1</h2>
+                </div>
+                <div class="text-right flex items-center space-x-2">
+                    <span id="p1-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
+                    <div id="p1-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p1">0</div>
+                </div>
+            </div>
+
+            <div class="my-1 bg-cyber-dark border border-cyber-p1/30 rounded-lg p-1.5 flex justify-between items-center">
+                <div>
+                    <span class="text-[9px] text-cyber-p1 font-bold uppercase tracking-wider block">Soal Matematika:</span>
+                    <span id="p1-target-formula" class="font-orbitron text-white text-xs md:text-sm font-bold">8 + 9</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[9px] text-gray-400 uppercase block">Target Output:</span>
+                    <span id="p1-target-value" class="font-orbitron text-cyber-yellow text-sm md:text-base font-black">17</span>
+                </div>
+            </div>
+
+            <!-- TABEL LKPD P1 -->
+            <div class="flex-1 my-1 bg-cyber-dark border border-cyber-border rounded-lg p-1 custom-scrollbar max-h-[300px] lg:max-h-none overflow-y-auto relative">
+                <div class="flex justify-between items-center mb-1 bg-cyber-dark pb-1 border-b border-cyber-border/40">
+                    <span class="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase">
+                        <i class="fa-solid fa-table-list text-cyber-p1 mr-1"></i> Mesin Konseptual
+                    </span>
+                    <span id="p1-slot-count" class="text-[10px] text-cyber-p1 font-code font-bold">0/12 Baris</span>
+                </div>
+
+                <table class="w-full lkpd-table font-code text-[10px] md:text-[11px] border-collapse">
+                    <thead>
+                        <tr class="bg-black text-gray-300 uppercase text-[8px] md:text-[9px] sticky-header-row-1">
+                            <th class="w-2/5 py-1 text-left px-1.5 bg-black">Instruksi Kode</th>
+                            <th colspan="4" class="bg-cyan-950 text-cyber-p1">Memory Map</th>
+                            <th colspan="3" id="p1-cpu-header" class="bg-indigo-950 text-cyber-yellow">CPU Map</th>
+                        </tr>
+                        <tr class="bg-cyber-card text-[8px] md:text-[9px] text-gray-400 sticky-header-row-2">
+                            <th class="text-left px-1 bg-cyber-card">Sintaks Mesin</th>
+                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m0">A1</th>
+                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m1">A2</th>
+                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m2">A3</th>
+                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m3">A4</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG1</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG2</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card" id="p1-th-reg3">REG3</th>
+                        </tr>
+                    </thead>
+                    <tbody id="p1-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Feedback P1 -->
+            <div id="p1-feedback-box" class="bg-black border border-cyber-p1/40 p-1 rounded-lg my-0.5 flex justify-between items-center">
+                <span class="text-[9px] md:text-[10px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p1 mr-1"></i> STATUS:</span>
+                <span id="p1-status-msg" class="font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]">Siap Diperiksa</span>
+            </div>
+
+            <!-- Bank Balok P1 -->
+            <div class="bg-cyber-dark border border-cyber-border rounded-lg p-1.5 my-0.5 space-y-1">
+                <div class="text-[8px] md:text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+                    <span><i class="fa-solid fa-hand-pointer text-cyber-p1 mr-1"></i> Tap/Drag Balok Ke Tabel</span>
+                </div>
+                <div class="flex flex-wrap gap-1" id="p1-palette-instructions"></div>
+                <div class="flex flex-wrap gap-1" id="p1-palette-operands"></div>
+            </div>
+
+            <!-- Actions P1 -->
+            <div class="grid grid-cols-3 gap-1.5 mt-0.5">
+                <button onclick="clearPlayerProgram(1)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-trash mr-1"></i> HAPUS
+                </button>
+                <button onclick="popLastLine(1)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> UNDO
+                </button>
+                <button onclick="validatePlayerAnswers(1)" id="p1-exec-btn" class="bg-cyber-p1 text-black font-orbitron font-extrabold text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-check-double mr-1"></i> CEK JAWABAN
+                </button>
+            </div>
+        </section>
+
+        <!-- PLAYER 2 / CPU CONTAINER -->
+        <section id="p2-container" class="bg-cyber-card border-2 border-cyber-p2/60 rounded-xl p-2 flex flex-col justify-between relative h-full">
+            <div class="flex justify-between items-center border-b border-cyber-border pb-1">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyber-p2"></span>
+                    <h2 id="p2-label-name" class="font-orbitron font-extrabold text-cyber-p2 text-sm md:text-base tracking-wider">PLAYER 2</h2>
+                </div>
+                <div class="text-right flex items-center space-x-2">
+                    <span id="p2-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
+                    <div id="p2-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p2">0</div>
+                </div>
+            </div>
+
+            <div class="my-1 bg-cyber-dark border border-cyber-p2/30 rounded-lg p-1.5 flex justify-between items-center">
+                <div>
+                    <span class="text-[9px] text-cyber-p2 font-bold uppercase tracking-wider block">Soal Matematika:</span>
+                    <span id="p2-target-formula" class="font-orbitron text-white text-xs md:text-sm font-bold">8 + 9</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[9px] text-gray-400 uppercase block">Target Output:</span>
+                    <span id="p2-target-value" class="font-orbitron text-cyber-yellow text-sm md:text-base font-black">17</span>
+                </div>
+            </div>
+
+            <!-- TABEL LKPD P2 -->
+            <div class="flex-1 my-1 bg-cyber-dark border border-cyber-border rounded-lg p-1 custom-scrollbar max-h-[300px] lg:max-h-none overflow-y-auto relative">
+                <div class="flex justify-between items-center mb-1 bg-cyber-dark pb-1 border-b border-cyber-border/40">
+                    <span class="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase">
+                        <i class="fa-solid fa-table-list text-cyber-p2 mr-1"></i> Mesin Konseptual
+                    </span>
+                    <span id="p2-slot-count" class="text-[10px] text-cyber-p2 font-code font-bold">0/12 Baris</span>
+                </div>
+
+                <table class="w-full lkpd-table font-code text-[10px] md:text-[11px] border-collapse">
+                    <thead>
+                        <tr class="bg-black text-gray-300 uppercase text-[8px] md:text-[9px] sticky-header-row-1">
+                            <th class="w-2/5 py-1 text-left px-1.5 bg-black">Instruksi Kode</th>
+                            <th colspan="4" class="bg-rose-950 text-cyber-p2">Memory Map</th>
+                            <th colspan="3" id="p2-cpu-header" class="bg-indigo-950 text-cyber-yellow">CPU Map</th>
+                        </tr>
+                        <tr class="bg-cyber-card text-[8px] md:text-[9px] text-gray-400 sticky-header-row-2">
+                            <th class="text-left px-1 bg-cyber-card">Sintaks Mesin</th>
+                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m0">A1</th>
+                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m1">A2</th>
+                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m2">A3</th>
+                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m3">A4</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG1</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG2</th>
+                            <th class="w-7 text-cyber-yellow bg-cyber-card" id="p2-th-reg3">REG3</th>
+                        </tr>
+                    </thead>
+                    <tbody id="p2-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Feedback P2 -->
+            <div id="p2-feedback-box" class="bg-black border border-cyber-p2/40 p-1 rounded-lg my-0.5 flex justify-between items-center">
+                <span class="text-[9px] md:text-[10px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p2 mr-1"></i> STATUS:</span>
+                <span id="p2-status-msg" class="font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]">Siap Diperiksa</span>
+            </div>
+
+            <!-- Bank Balok P2 -->
+            <div class="bg-cyber-dark border border-cyber-border rounded-lg p-1.5 my-0.5 space-y-1">
+                <div class="text-[8px] md:text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+                    <span><i class="fa-solid fa-hand-pointer text-cyber-p2 mr-1"></i> Tap/Drag Balok Ke Tabel</span>
+                </div>
+                <div class="flex flex-wrap gap-1" id="p2-palette-instructions"></div>
+                <div class="flex flex-wrap gap-1" id="p2-palette-operands"></div>
+            </div>
+
+            <!-- Actions P2 -->
+            <div class="grid grid-cols-3 gap-1.5 mt-0.5">
+                <button onclick="clearPlayerProgram(2)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-trash mr-1"></i> HAPUS
+                </button>
+                <button onclick="popLastLine(2)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> UNDO
+                </button>
+                <button onclick="validatePlayerAnswers(2)" id="p2-exec-btn" class="bg-cyber-p2 text-white font-orbitron font-extrabold text-[10px] md:text-xs py-1.5 rounded-lg">
+                    <i class="fa-solid fa-check-double mr-1"></i> CEK JAWABAN
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL SETUP GAME & IDENTITAS SISWA -->
+    <div id="setupModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
+        <div class="bg-cyber-card border-2 border-cyber-p1 rounded-xl max-w-md w-full p-5 relative shadow-2xl">
+            <h2 class="font-orbitron font-black text-lg text-cyber-yellow mb-3 text-center">
+                <i class="fa-solid fa-user-gear mr-2"></i> PENGATURAN & IDENTITAS
+            </h2>
+
+            <div class="mb-4">
+                <label class="text-xs text-gray-300 font-bold block mb-1">PILIH MODE PERMAINAN:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnModeSingle" onclick="selectGameMode('single')" class="bg-cyber-p1 text-black font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p1 transition-all">
+                        <i class="fa-solid fa-user mr-1"></i> 1 Player (HP/Single)
+                    </button>
+                    <button id="btnModeDual" onclick="selectGameMode('dual')" class="bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all">
+                        <i class="fa-solid fa-users mr-1"></i> 2 Player (Vs)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Single Player -->
+            <div id="formSingle" class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Nama Siswa:</label>
+                    <input type="text" id="inputP1Name" placeholder="Contoh: Budi Santoso" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p1">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Kelas:</label>
+                    <input type="text" id="inputP1Class" placeholder="Contoh: X-1" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p1">
+                </div>
+            </div>
+
+            <!-- Form Dual Player -->
+            <div id="formDual" class="space-y-3 hidden mt-3 pt-3 border-t border-cyber-border">
+                <div class="text-xs text-cyber-p2 font-bold">IDENTITAS PLAYER 2 (TIM B):</div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Nama Player 2 / Tim B:</label>
+                    <input type="text" id="inputP2Name" placeholder="Contoh: Siti Rahma" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p2">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Kelas Player 2:</label>
+                    <input type="text" id="inputP2Class" placeholder="Contoh: X-2" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p2">
+                </div>
+            </div>
+
+            <button onclick="saveSetupAndStart()" class="w-full mt-5 bg-gradient-to-r from-cyber-p1 to-cyber-green text-black font-orbitron font-black text-sm py-2.5 rounded-lg shadow-lg">
+                MULAI GAME <i class="fa-solid fa-play ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL LEADERBOARD -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-card border-2 border-cyber-yellow rounded-xl max-w-md w-full p-4 relative flex flex-col max-h-[85vh]">
+            <button onclick="toggleModal('leaderboardModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+
+            <h3 class="font-orbitron text-base font-extrabold text-cyber-yellow mb-2 flex items-center">
+                <i class="fa-solid fa-trophy mr-2"></i> LEADERBOARD SISWA
+            </h3>
+
+            <!-- Config Google Apps Script URL -->
+            <div class="bg-cyber-dark p-2 rounded border border-cyber-border mb-3 space-y-1">
+                <label class="text-[10px] text-gray-400 block"><i class="fa-solid fa-link text-cyber-p1 mr-1"></i> Google Apps Script Web App URL (Spreadsheet):</label>
+                <div class="flex gap-1">
+                    <input type="text" id="sheetApiUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-black border border-cyber-border rounded px-2 py-1 text-[10px] font-code text-cyber-p1 focus:outline-none">
+                    <button onclick="saveSheetUrl()" class="bg-cyber-p1 text-black font-orbitron font-bold text-[10px] px-2 py-1 rounded">Simpan</button>
+                </div>
+            </div>
+
+            <!-- Tabel Skor Lokal / Cloud -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar border border-cyber-border rounded-lg">
+                <table class="w-full text-left font-code text-xs">
+                    <thead class="bg-cyber-dark text-gray-400 border-b border-cyber-border">
+                        <tr>
+                            <th class="p-2">#</th>
+                            <th class="p-2">Nama</th>
+                            <th class="p-2">Kelas</th>
+                            <th class="p-2 text-right">Skor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTbody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 flex justify-between items-center">
+                <button onclick="clearLocalLeaderboard()" class="text-red-400 hover:text-red-300 text-[10px] font-orbitron">
+                    <i class="fa-solid fa-trash mr-1"></i> Clear Local
+                </button>
+                <button onclick="toggleModal('leaderboardModal')" class="bg-cyber-yellow text-black font-orbitron font-bold text-xs px-3 py-1.5 rounded">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VICTORY -->
+    <div id="victoryModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-card border-2 border-cyber-yellow rounded-2xl max-w-sm w-full p-5 text-center relative shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-cyber-yellow/20 border border-cyber-yellow text-cyber-yellow flex items-center justify-center text-2xl mx-auto mb-2">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 id="winnerTitle" class="font-orbitron font-black text-xl text-white tracking-wider">PLAYER 1 MENANG!</h2>
+            <p id="winnerDesc" class="text-xs text-gray-300 mt-1 mb-3">Semua baris instruksi & tabel 100% TEPAT!</p>
+
+            <div class="bg-cyber-dark p-2 rounded-lg border border-cyber-border mb-3 font-orbitron text-xs flex justify-around">
+                <div>
+                    <span id="modal-p1-label" class="text-gray-500 block text-[10px]">PLAYER 1</span>
+                    <span id="modal-p1-score" class="text-cyber-p1 font-bold text-base">100</span>
+                </div>
+                <div id="modal-divider" class="border-r border-cyber-border"></div>
+                <div id="modal-p2-box">
+                    <span id="modal-p2-label" class="text-gray-500 block text-[10px]">PLAYER 2</span>
+                    <span id="modal-p2-score" class="text-cyber-p2 font-bold text-base">0</span>
+                </div>
+            </div>
+
+            <div id="autoSaveStatusMsg" class="text-[11px] font-bold text-cyber-green mb-2 hidden">
+                <i class="fa-solid fa-circle-check mr-1"></i> Skor otomatis tersimpan ke Spreadsheet!
+            </div>
+
+            <div class="space-y-2">
+                <button id="btnManualSaveSheet" onclick="submitScoreToLeaderboard()" class="w-full bg-cyber-green text-black font-orbitron font-bold text-xs py-2 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-file-excel mr-1"></i> SIMPAN SKOR KE SPREADSHEET
+                </button>
+
+                <button onclick="nextRound()" class="w-full bg-cyber-yellow text-black font-orbitron font-bold text-xs py-2 rounded-lg">
+                    SOAL BERIKUTNYA <i class="fa-solid fa-forward ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATASET SINGLE PLAYER (BERGRADASI: 5 MUDAH + 5 MENENGAH)
+        const SCENARIOS_SINGLE = [
+            { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
+            { id: 2, name: "Soal 2: 8 × 9 [Mudah]", formula: "8 × 9", target: 72, memPrefixes: ["B1","B2","B3","B4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [72] },
+            { id: 3, name: "Soal 3: 24 - 8 [Mudah]", formula: "24 - 8", target: 16, memPrefixes: ["C1","C2","C3","C4"], numbers: [24, 8], registers: ["REG1","REG2"], extraValues: [16] },
+            { id: 4, name: "Soal 4: 36 / 6 [Mudah]", formula: "36 / 6", target: 6, memPrefixes: ["D1","D2","D3","D4"], numbers: [36, 6], registers: ["REG1","REG2","REG3"], extraValues: [6] },
+            { id: 5, name: "Soal 5: 6 × 7 [Mudah]", formula: "6 × 7", target: 42, memPrefixes: ["E1","E2","E3","E4"], numbers: [6, 7], registers: ["REG1","REG2"], extraValues: [42] },
+
+            { id: 6, name: "Soal 6: (8 × 9) + 2 [2 Operator]", formula: "(8 × 9) + 2", target: 74, memPrefixes: ["F1","F2","F3","F4"], numbers: [8, 9, 2], registers: ["REG1","REG2"], extraValues: [72, 74] },
+            { id: 7, name: "Soal 7: 8 + (9 × 2) [2 Operator]", formula: "8 + (9 × 2)", target: 26, memPrefixes: ["G1","G2","G3","G4"], numbers: [8, 9, 2], registers: ["REG1","REG2"], extraValues: [18, 26] },
+            { id: 8, name: "Soal 8: (6 × 7) + 5 [2 Operator]", formula: "(6 × 7) + 5", target: 47, memPrefixes: ["H1","H2","H3","H4"], numbers: [6, 7, 5], registers: ["REG1","REG2"], extraValues: [42, 47] },
+            { id: 9, name: "Soal 9: 24 / 8 - 4 [2 Operator]", formula: "24 / 8 - 4", target: -1, memPrefixes: ["I1","I2","I3","I4"], numbers: [24, 8, 4], registers: ["REG1","REG2","REG3"], extraValues: [3, -1] },
+            { id: 10, name: "Soal 10: (36 - 6) / 2 [2 Operator]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["J1","J2","J3","J4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
+        ];
+
+        // DATASET DUAL PLAYER BATTLE (SOAL BEDA UNTUK P1 & P2 AGAR TIDAK NYONTEK)
+        const SCENARIOS_DUAL_PAIRS = [
+            {
+                p1: { id: 101, name: "Match 1 - P1", formula: "9 + 7", target: 16, memPrefixes: ["A1","A2","A3","A4"], numbers: [9, 7], registers: ["REG1","REG2"], extraValues: [16] },
+                p2: { id: 102, name: "Match 1 - P2", formula: "8 + 6", target: 14, memPrefixes: ["B1","B2","B3","B4"], numbers: [8, 6], registers: ["REG1","REG2"], extraValues: [14] }
+            },
+            {
+                p1: { id: 103, name: "Match 2 - P1", formula: "7 × 8", target: 56, memPrefixes: ["C1","C2","C3","C4"], numbers: [7, 8], registers: ["REG1","REG2"], extraValues: [56] },
+                p2: { id: 104, name: "Match 2 - P2", formula: "6 × 9", target: 54, memPrefixes: ["D1","D2","D3","D4"], numbers: [6, 9], registers: ["REG1","REG2"], extraValues: [54] }
+            },
+            {
+                p1: { id: 105, name: "Match 3 - P1", formula: "(7 × 8) + 4", target: 60, memPrefixes: ["E1","E2","E3","E4"], numbers: [7, 8, 4], registers: ["REG1","REG2"], extraValues: [56, 60] },
+                p2: { id: 106, name: "Match 3 - P2", formula: "(6 × 9) + 6", target: 60, memPrefixes: ["F1","F2","F3","F4"], numbers: [6, 9, 6], registers: ["REG1","REG2"], extraValues: [54, 60] }
+            },
+            {
+                p1: { id: 107, name: "Match 4 - P1", formula: "32 / 8 - 2", target: 2, memPrefixes: ["G1","G2","G3","G4"], numbers: [32, 8, 2], registers: ["REG1","REG2","REG3"], extraValues: [4, 2] },
+                p2: { id: 108, name: "Match 4 - P2", formula: "45 / 9 - 3", target: 2, memPrefixes: ["H1","H2","H3","H4"], numbers: [45, 9, 3], registers: ["REG1","REG2","REG3"], extraValues: [5, 2] }
+            }
+        ];
+
+        const MAX_LKPD_ROWS = 12;
+
+        let currentGameMode = 'single';
+        let currentScenarioIdx = 0;
+        let p1Score = 0;
+        let p2Score = 0;
+        let timerInterval = null;
+        let timeLeft = 180;
+
+        let player1Info = { name: "Siswa 1", class: "X-1" };
+        let player2Info = { name: "Tim B", class: "X-1" };
+
+        const playerPrograms = { 1: [], 2: [] };
+        const selectedBlockForPlayer = { 1: null, 2: null };
+
+        let isDragging = false;
+
+        // Audio Effects Engine
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.04);
+                } else if (type === 'add') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.06);
+                    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.06);
+                } else if (type === 'success') {
+                    const now = audioCtx.currentTime;
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch (e) {}
+        }
+
+        window.onload = function() {
+            populateSelectOptions();
+            loadSheetUrl();
+            renderLeaderboardTable();
+            setupDualTouchEngine();
+        };
+
+        function selectGameMode(mode) {
+            currentGameMode = mode;
+            currentScenarioIdx = 0;
+            const bSingle = document.getElementById('btnModeSingle');
+            const bDual = document.getElementById('btnModeDual');
+            const fDual = document.getElementById('formDual');
+
+            if (mode === 'single') {
+                bSingle.className = "bg-cyber-p1 text-black font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p1 transition-all";
+                bDual.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all";
+                fDual.classList.add('hidden');
+            } else {
+                bDual.className = "bg-cyber-p2 text-white font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p2 transition-all";
+                bSingle.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p1 transition-all";
+                fDual.classList.remove('hidden');
+            }
+            populateSelectOptions();
+        }
+
+        function saveSetupAndStart() {
+            const p1N = document.getElementById('inputP1Name').value.trim();
+            const p1C = document.getElementById('inputP1Class').value.trim();
+
+            if (!p1N || !p1C) {
+                alert('Mohon isi Nama dan Kelas terlebih dahulu!');
+                return;
+            }
+
+            player1Info = { name: p1N, class: p1C };
+
+            if (currentGameMode === 'dual') {
+                const p2N = document.getElementById('inputP2Name').value.trim() || 'Player 2';
+                const p2C = document.getElementById('inputP2Class').value.trim() || p1C;
+                player2Info = { name: p2N, class: p2C };
+            }
+
+            toggleModal('setupModal');
+            applyGameModeUI();
+            setupGame();
+            startTimer();
+        }
+
+        function applyGameModeUI() {
+            const p2Container = document.getElementById('p2-container');
+            const mainGrid = document.getElementById('mainGameGrid');
+            const modeBadge = document.getElementById('modeBadge');
+
+            document.getElementById('p1-label-name').innerText = player1Info.name.toUpperCase();
+            document.getElementById('p1-label-class').innerText = `Kelas: ${player1Info.class}`;
+
+            if (currentGameMode === 'single') {
+                p2Container.classList.add('hidden');
+                mainGrid.className = "flex-1 grid grid-cols-1 p-2 overflow-y-auto max-w-2xl mx-auto w-full";
+                modeBadge.innerText = "1 PLAYER (SINGLE)";
+                modeBadge.className = "text-cyber-p1 text-[10px] px-1.5 py-0.5 rounded border border-cyber-p1/40 bg-cyber-p1/10";
+            } else {
+                p2Container.classList.remove('hidden');
+                mainGrid.className = "flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 overflow-y-auto lg:overflow-hidden";
+                modeBadge.innerText = "2 PLAYER (DUAL TOUCH)";
+                modeBadge.className = "text-cyber-p2 text-[10px] px-1.5 py-0.5 rounded border border-cyber-p2/40 bg-cyber-p2/10";
+
+                document.getElementById('p2-label-name').innerText = player2Info.name.toUpperCase();
+                document.getElementById('p2-label-class').innerText = `Kelas: ${player2Info.class}`;
+            }
+        }
+
+        function populateSelectOptions() {
+            const sel = document.getElementById('scenarioSelect');
+            sel.innerHTML = '';
+
+            if (currentGameMode === 'single') {
+                SCENARIOS_SINGLE.forEach((sc, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.innerText = sc.name;
+                    sel.appendChild(opt);
+                });
+            } else {
+                SCENARIOS_DUAL_PAIRS.forEach((pair, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.innerText = `Ronde ${idx + 1}: Beda Soal P1/P2`;
+                    sel.appendChild(opt);
+                });
+            }
+        }
+
+        function getCurrentScenario(player = 1) {
+            if (currentGameMode === 'single') {
+                return SCENARIOS_SINGLE[currentScenarioIdx];
+            } else {
+                const pair = SCENARIOS_DUAL_PAIRS[currentScenarioIdx];
+                return player === 1 ? pair.p1 : pair.p2;
+            }
+        }
+
+        function setupGame() {
+            renderScenariosUI();
+            renderLKPDTable(1);
+            renderPalette(1);
+
+            if (currentGameMode === 'dual') {
+                renderLKPDTable(2);
+                renderPalette(2);
+            }
+        }
+
+        function changeScenario() {
+            const sel = document.getElementById('scenarioSelect');
+            currentScenarioIdx = parseInt(sel.value);
+            playerPrograms[1] = [];
+            playerPrograms[2] = [];
+            setupGame();
+            playSound('click');
+        }
+
+        function pickRandomScenario() {
+            const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
+            currentScenarioIdx = Math.floor(Math.random() * list.length);
+            document.getElementById('scenarioSelect').value = currentScenarioIdx;
+            playerPrograms[1] = [];
+            playerPrograms[2] = [];
+            setupGame();
+            playSound('click');
+        }
+
+        function renderScenariosUI() {
+            const sc1 = getCurrentScenario(1);
+            
+            document.getElementById('p1-target-formula').innerText = sc1.formula;
+            document.getElementById('p1-target-value').innerText = sc1.target;
+
+            sc1.memPrefixes.forEach((addr, i) => {
+                document.getElementById(`p1-th-m${i}`).innerText = addr;
+            });
+
+            const hasReg3_P1 = sc1.registers.includes("REG3");
+            document.getElementById('p1-th-reg3').style.display = hasReg3_P1 ? '' : 'none';
+            document.getElementById('p1-cpu-header').colSpan = hasReg3_P1 ? 3 : 2;
+
+            document.getElementById(`p1-status-msg`).innerText = 'Siap Diperiksa';
+            document.getElementById(`p1-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+
+            if (currentGameMode === 'dual') {
+                const sc2 = getCurrentScenario(2);
+                document.getElementById('p2-target-formula').innerText = sc2.formula;
+                document.getElementById('p2-target-value').innerText = sc2.target;
+
+                sc2.memPrefixes.forEach((addr, i) => {
+                    document.getElementById(`p2-th-m${i}`).innerText = addr;
+                });
+
+                const hasReg3_P2 = sc2.registers.includes("REG3");
+                document.getElementById('p2-th-reg3').style.display = hasReg3_P2 ? '' : 'none';
+                document.getElementById('p2-cpu-header').colSpan = hasReg3_P2 ? 3 : 2;
+
+                document.getElementById(`p2-status-msg`).innerText = 'Siap Diperiksa';
+                document.getElementById(`p2-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+            }
+        }
+
+        function renderLKPDTable(player) {
+            const tbody = document.getElementById(`p${player}-table-body`);
+            tbody.innerHTML = '';
+
+            const program = playerPrograms[player];
+            const sc = getCurrentScenario(player);
+            const totalCols = sc.registers.includes("REG3") ? 7 : 6;
+
+            document.getElementById(`p${player}-slot-count`).innerText = `${program.length}/${MAX_LKPD_ROWS} Baris`;
+
+            for (let i = 0; i < MAX_LKPD_ROWS; i++) {
+                const tr = document.createElement('tr');
+                tr.id = `p${player}-row-${i}`;
+                tr.className = i % 2 === 0 ? 'bg-cyber-card' : 'bg-black/40';
+
+                const line = program[i];
+
+                if (line && line.opcode) {
+                    const isArith = ['TAMBAH', 'KALI', 'KURANG', 'BAGI'].includes(line.opcode);
+                    const isPrint = line.opcode === 'PRINT';
+
+                    const firstColHtml = `
+                        <td class="text-left px-1 py-0.5 drop-zone" data-player="${player}" data-row="${i}">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="text-gray-500 font-bold text-[8px] md:text-[9px] w-3">${i+1}.</span>
+                                <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border bg-cyan-950 border-cyan-500/60 text-cyan-300" data-slot="opcode">${line.opcode}</span>
+                                <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border ${line.arg1 ? 'bg-amber-950 border-amber-500/60 text-amber-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500'}" data-slot="arg1">${line.arg1 || '___'}</span>
+                                ${!isPrint ? `
+                                    <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border ${isArith ? 'bg-indigo-950 border-indigo-500/60 text-indigo-300' : (line.arg2 ? 'bg-purple-950 border-purple-500/60 text-purple-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500')}" data-slot="arg2">${line.arg2 || (isArith ? 'REG2' : '___')}</span>
+                                ` : ''}
+                                <button onclick="removeLine(${player}, ${i})" class="text-gray-500 hover:text-red-400 ml-auto px-1 text-[10px]">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    if (isPrint) {
+                        tr.innerHTML = firstColHtml + `
+                            <td colspan="${totalCols}">
+                                <div class="cell-drop-target cell-zone bg-yellow-950/40 border-yellow-500/50 text-yellow-300 font-bold" data-player="${player}" data-row="${i}" data-field="userM0" id="p${player}-m0-${i}">
+                                    <span class="text-[9px] mr-1 opacity-75"><i class="fa-solid fa-desktop mr-1"></i>MONITOR:</span> ${line.userM0 || '-'}
+                                </div>
+                            </td>
+                        `;
+                    } else {
+                        tr.innerHTML = firstColHtml + `
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userM0" id="p${player}-m0-${i}">${line.userM0 || '-'}</div></td>
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userM1" id="p${player}-m1-${i}">${line.userM1 || '-'}</div></td>
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userM2" id="p${player}-m2-${i}">${line.userM2 || '-'}</div></td>
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userM3" id="p${player}-m3-${i}">${line.userM3 || '-'}</div></td>
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userR1" id="p${player}-r1-${i}">${line.userR1 || '-'}</div></td>
+                            <td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userR2" id="p${player}-r2-${i}">${line.userR2 || '-'}</div></td>
+                            ${sc.registers.includes("REG3") ? `<td><div class="cell-drop-target cell-zone" data-player="${player}" data-row="${i}" data-field="userR3" id="p${player}-r3-${i}">${line.userR3 || '-'}</div></td>` : ''}
+                        `;
+                    }
+                } else {
+                    tr.innerHTML = `
+                        <td class="text-left px-1 py-1 text-gray-500 italic drop-zone text-[8px] md:text-[9px]" data-player="${player}" data-row="${i}">
+                            <i class="fa-solid fa-plus text-[8px] mr-1 text-gray-600"></i>[Baris ${i+1}]
+                        </td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM0">-</div></td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM1">-</div></td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM2">-</div></td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM3">-</div></td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userR1">-</div></td>
+                        <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userR2">-</div></td>
+                        ${sc.registers.includes("REG3") ? `<td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userR3">-</div></td>` : ''}
+                    `;
+                }
+
+                tbody.appendChild(tr);
+            }
+
+            tbody.querySelectorAll('.cell-zone').forEach(cell => {
+                cell.addEventListener('click', () => handleCellTap(cell));
+            });
+        }
+
+        function renderPalette(player) {
+            const instContainer = document.getElementById(`p${player}-palette-instructions`);
+            const operContainer = document.getElementById(`p${player}-palette-operands`);
+            
+            instContainer.innerHTML = '';
+            operContainer.innerHTML = '';
+
+            const opcodes = [
+                { op: 'SIMPAN', color: 'bg-cyan-950 border-cyan-500 text-cyan-300' },
+                { op: 'SALIN', color: 'bg-indigo-950 border-indigo-500 text-indigo-300' },
+                { op: 'TAMBAH', color: 'bg-emerald-950 border-emerald-500 text-emerald-300' },
+                { op: 'KALI', color: 'bg-amber-950 border-amber-500 text-amber-300' },
+                { op: 'KURANG', color: 'bg-rose-950 border-rose-500 text-rose-300' },
+                { op: 'BAGI', color: 'bg-purple-950 border-purple-500 text-purple-300' },
+                { op: 'PRINT', color: 'bg-yellow-950 border-yellow-500 text-yellow-300' }
+            ];
+
+            opcodes.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = `block-btn ${item.color} border text-[9px] font-code px-1.5 py-0.5 rounded font-bold shadow flex items-center gap-1 select-none`;
+                btn.setAttribute('data-type', 'opcode');
+                btn.setAttribute('data-val', item.op);
+                btn.setAttribute('data-player', player);
+                btn.innerHTML = `<i class="fa-solid fa-grip-vertical text-[8px] opacity-60"></i> ${item.op}`;
+                btn.onclick = (e) => {
+                    if (isDragging) return;
+                    handlePaletteClick(player, 'opcode', item.op, btn);
+                };
+                instContainer.appendChild(btn);
+            });
+
+            const sc = getCurrentScenario(player);
+            const operands = [...sc.numbers, ...sc.memPrefixes, ...sc.registers, ...(sc.extraValues || [])];
+            operands.forEach(op => {
+                const tag = document.createElement('div');
+                tag.className = `block-btn bg-gray-900 border border-gray-600 text-gray-200 text-[8px] md:text-[9px] font-code px-1.5 py-0.5 rounded shadow select-none`;
+                tag.setAttribute('data-type', 'operand');
+                tag.setAttribute('data-val', op);
+                tag.setAttribute('data-player', player);
+                tag.innerText = op;
+                tag.onclick = (e) => {
+                    if (isDragging) return;
+                    handlePaletteClick(player, 'operand', op, tag);
+                };
+                operContainer.appendChild(tag);
+            });
+        }
+
+        function applyBlockToRow(player, rowIdx, type, val, slotTarget = null) {
+            if (rowIdx < 0 || rowIdx >= MAX_LKPD_ROWS) return;
+
+            if (!playerPrograms[player][rowIdx]) {
+                playerPrograms[player][rowIdx] = {
+                    opcode: 'SIMPAN',
+                    arg1: '',
+                    arg2: '',
+                    userM0: '-', userM1: '-', userM2: '-', userM3: '-',
+                    userR1: '-', userR2: '-', userR3: '-'
+                };
+            }
+
+            const line = playerPrograms[player][rowIdx];
+
+            if (type === 'opcode') {
+                line.opcode = val;
+                if (['TAMBAH', 'KALI', 'KURANG', 'BAGI'].includes(val)) {
+                    line.arg1 = 'REG1';
+                    line.arg2 = 'REG2';
+                } else if (val === 'PRINT') {
+                    if (line.arg1 === 'REG1' || line.arg1 === 'REG2') line.arg1 = '';
+                    line.arg2 = '';
+                }
+            } else if (type === 'operand') {
+                if (slotTarget === 'arg1') line.arg1 = String(val);
+                else if (slotTarget === 'arg2') line.arg2 = String(val);
+                else {
+                    if (!line.arg1 || line.arg1 === '___') line.arg1 = String(val);
+                    else line.arg2 = String(val);
+                }
+            }
+
+            renderLKPDTable(player);
+            playSound('add');
+        }
+
+        function applyValueToCell(player, rowIdx, field, val) {
+            if (rowIdx < 0 || rowIdx >= MAX_LKPD_ROWS) return;
+            if (!playerPrograms[player][rowIdx]) {
+                playerPrograms[player][rowIdx] = {
+                    opcode: '', arg1: '', arg2: '',
+                    userM0: '-', userM1: '-', userM2: '-', userM3: '-',
+                    userR1: '-', userR2: '-', userR3: '-'
+                };
+            }
+            playerPrograms[player][rowIdx][field] = String(val);
+            renderLKPDTable(player);
+            playSound('add');
+        }
+
+        function handlePaletteClick(player, type, val, btnEl) {
+            document.querySelectorAll(`[data-player="${player}"]`).forEach(b => {
+                b.classList.remove('selected-block-p1', 'selected-block-p2');
+            });
+            btnEl.classList.add(player === 1 ? 'selected-block-p1' : 'selected-block-p2');
+            selectedBlockForPlayer[player] = { type, val };
+
+            if (type === 'opcode') {
+                let prog = playerPrograms[player];
+                let targetRow = prog.findIndex(line => !line || !line.opcode);
+                if (targetRow === -1) targetRow = prog.length < MAX_LKPD_ROWS ? prog.length : MAX_LKPD_ROWS - 1;
+                applyBlockToRow(player, targetRow, type, val);
+            } else if (type === 'operand') {
+                let prog = playerPrograms[player];
+                let targetRow = prog.findIndex(line => {
+                    if (!line || !line.opcode) return false;
+                    if (['TAMBAH', 'KALI', 'KURANG', 'BAGI'].includes(line.opcode)) return false;
+                    if (line.opcode === 'PRINT') return !line.arg1;
+                    return !line.arg1 || !line.arg2;
+                });
+                if (targetRow !== -1) applyBlockToRow(player, targetRow, type, val);
+            }
+        }
+
+        function handleCellTap(cellEl) {
+            if (isDragging) return;
+            const player = parseInt(cellEl.getAttribute('data-player'));
+            const rowIdx = parseInt(cellEl.getAttribute('data-row'));
+            const field = cellEl.getAttribute('data-field');
+            const selected = selectedBlockForPlayer[player];
+
+            if (selected) {
+                applyValueToCell(player, rowIdx, field, selected.val);
+            } else {
+                applyValueToCell(player, rowIdx, field, '-');
+            }
+        }
+
+        const activeTouches = new Map();
+
+        function setupDualTouchEngine() {
+            document.addEventListener('pointerdown', handlePointerDown);
+            document.addEventListener('pointermove', handlePointerMove);
+            document.addEventListener('pointerup', handlePointerUp);
+            document.addEventListener('pointercancel', handlePointerUp);
+        }
+
+        function handlePointerDown(e) {
+            const btn = e.target.closest('.block-btn');
+            if (!btn) return;
+
+            const pointerId = e.pointerId;
+            const type = btn.getAttribute('data-type');
+            const val = btn.getAttribute('data-val');
+            const player = parseInt(btn.getAttribute('data-player'));
+
+            const ghost = btn.cloneNode(true);
+            ghost.classList.add('drag-ghost');
+            ghost.style.left = `${e.clientX}px`;
+            ghost.style.top = `${e.clientY}px`;
+            document.body.appendChild(ghost);
+
+            try { btn.setPointerCapture(pointerId); } catch(err) {}
+
+            activeTouches.set(pointerId, { 
+                type, 
+                val, 
+                player, 
+                ghostEl: ghost, 
+                sourceBtn: btn,
+                startX: e.clientX,
+                startY: e.clientY,
+                hasMoved: false
+            });
+        }
+
+        function handlePointerMove(e) {
+            const touch = activeTouches.get(e.pointerId);
+            if (!touch) return;
+
+            e.preventDefault();
+            
+            const dist = Math.hypot(e.clientX - touch.startX, e.clientY - touch.startY);
+            if (dist > 5) {
+                touch.hasMoved = true;
+                isDragging = true;
+            }
+
+            touch.ghostEl.style.left = `${e.clientX}px`;
+            touch.ghostEl.style.top = `${e.clientY}px`;
+
+            document.querySelectorAll('.drop-zone, .cell-zone').forEach(dz => {
+                dz.classList.remove('drop-target-p1-hover', 'drop-target-p2-hover');
+            });
+
+            const elemUnder = document.elementFromPoint(e.clientX, e.clientY);
+            if (elemUnder) {
+                const dz = elemUnder.closest('.drop-zone, .cell-zone');
+                if (dz && parseInt(dz.getAttribute('data-player')) === touch.player) {
+                    dz.classList.add(touch.player === 1 ? 'drop-target-p1-hover' : 'drop-target-p2-hover');
+                }
+            }
+        }
+
+        function handlePointerUp(e) {
+            const touch = activeTouches.get(e.pointerId);
+            if (!touch) return;
+
+            document.querySelectorAll('.drop-zone, .cell-zone').forEach(dz => {
+                dz.classList.remove('drop-target-p1-hover', 'drop-target-p2-hover');
+            });
+
+            if (touch.hasMoved) {
+                const elemUnder = document.elementFromPoint(e.clientX, e.clientY);
+                if (elemUnder) {
+                    const cellZone = elemUnder.closest('.cell-zone');
+                    const dropZone = elemUnder.closest('.drop-zone');
+
+                    if (cellZone) {
+                        const dzPlayer = parseInt(cellZone.getAttribute('data-player'));
+                        const targetRow = parseInt(cellZone.getAttribute('data-row'));
+                        const targetField = cellZone.getAttribute('data-field');
+                        if (dzPlayer === touch.player) applyValueToCell(dzPlayer, targetRow, targetField, touch.val);
+                    } else if (dropZone) {
+                        const dzPlayer = parseInt(dropZone.getAttribute('data-player'));
+                        const targetRow = parseInt(dropZone.getAttribute('data-row'));
+                        if (dzPlayer === touch.player) {
+                            const slotTarget = elemUnder.closest('.drop-slot')?.getAttribute('data-slot') || null;
+                            applyBlockToRow(dzPlayer, targetRow, touch.type, touch.val, slotTarget);
+                        }
+                    }
+                }
+            }
+
+            if (touch.ghostEl) touch.ghostEl.remove();
+            try { touch.sourceBtn.releasePointerCapture(e.pointerId); } catch(err) {}
+            
+            activeTouches.delete(e.pointerId);
+
+            setTimeout(() => {
+                isDragging = false;
+            }, 50);
+        }
+
+        function removeLine(player, idx) {
+            playerPrograms[player].splice(idx, 1);
+            renderLKPDTable(player);
+            playSound('click');
+        }
+
+        function popLastLine(player) {
+            if (playerPrograms[player].length > 0) {
+                playerPrograms[player].pop();
+                renderLKPDTable(player);
+                playSound('click');
+            }
+        }
+
+        function clearPlayerProgram(player) {
+            playerPrograms[player] = [];
+            selectedBlockForPlayer[player] = null;
+            const msgEl = document.getElementById(`p${player}-status-msg`);
+            msgEl.innerText = 'Siap Diperiksa';
+            msgEl.className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+            renderLKPDTable(player);
+            playSound('click');
+        }
+
+        function validatePlayerAnswers(player) {
+            const program = playerPrograms[player];
+            const msgEl = document.getElementById(`p${player}-status-msg`);
+
+            if (!program || program.length === 0) {
+                msgEl.innerText = 'ERR: Program Kosong!';
+                msgEl.className = 'font-orbitron text-red-500 font-bold text-[10px] md:text-[11px]';
+                playSound('error');
+                return;
+            }
+
+            const sc = getCurrentScenario(player);
+            const hasReg3 = sc.registers.includes("REG3");
+
+            const expectedStates = [];
+            const memory = {};
+            sc.memPrefixes.forEach(m => memory[m] = '-');
+            const registers = { REG1: '-', REG2: '-', REG3: '-' };
+            let printedValue = null;
+            let simError = null;
+
+            for (let i = 0; i < program.length; i++) {
+                const line = program[i];
+                try {
+                    switch (line.opcode) {
+                        case 'SIMPAN': {
+                            const val = parseInt(line.arg1);
+                            memory[line.arg2] = val;
+                            break;
+                        }
+                        case 'SALIN': {
+                            const src = line.arg1;
+                            const dest = line.arg2;
+                            let val = memory.hasOwnProperty(src) ? memory[src] : registers[src];
+                            if (val === '-' || val === undefined) throw new Error(`Baris ${i+1}: '${src}' kosong!`);
+                            if (memory.hasOwnProperty(dest)) memory[dest] = val;
+                            else if (registers.hasOwnProperty(dest)) registers[dest] = val;
+                            break;
+                        }
+                        case 'TAMBAH': {
+                            if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
+                            registers['REG2'] = parseInt(registers['REG1']) + parseInt(registers['REG2']);
+                            break;
+                        }
+                        case 'KALI': {
+                            if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
+                            registers['REG2'] = parseInt(registers['REG1']) * parseInt(registers['REG2']);
+                            break;
+                        }
+                        case 'KURANG': {
+                            if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
+                            registers['REG2'] = parseInt(registers['REG1']) - parseInt(registers['REG2']);
+                            break;
+                        }
+                        case 'BAGI': {
+                            if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
+                            if (parseInt(registers['REG2']) === 0) throw new Error(`Baris ${i+1}: Div/0!`);
+                            registers['REG3'] = Math.floor(parseInt(registers['REG1']) / parseInt(registers['REG2']));
+                            break;
+                        }
+                        case 'PRINT': {
+                            const target = line.arg1;
+                            let val = memory.hasOwnProperty(target) ? memory[target] : registers[target];
+                            if (val === '-' || val === undefined) throw new Error(`Baris ${i+1}: '${target}' kosong!`);
+                            printedValue = val;
+                            break;
+                        }
+                    }
+                } catch (err) {
+                    simError = err.message;
+                    break;
+                }
+
+                expectedStates.push({
+                    m0: String(memory[sc.memPrefixes[0]]),
+                    m1: String(memory[sc.memPrefixes[1]]),
+                    m2: String(memory[sc.memPrefixes[2]]),
+                    m3: String(memory[sc.memPrefixes[3]]),
+                    r1: String(registers['REG1']),
+                    r2: String(registers['REG2']),
+                    r3: String(registers['REG3'])
+                });
+            }
+
+            if (simError) {
+                msgEl.innerText = `ERR: ${simError}`;
+                msgEl.className = 'font-orbitron text-red-500 font-bold text-[10px] md:text-[11px]';
+                playSound('error');
+                return;
+            }
+
+            let totalCells = 0;
+            let correctCells = 0;
+
+            program.forEach((line, i) => {
+                const exp = expectedStates[i];
+
+                if (line.opcode === 'PRINT') {
+                    totalCells++;
+                    const el = document.getElementById(`p${player}-m0-${i}`);
+                    const cleanUser = String(line.userM0 || '-').trim();
+                    const cleanExp = String(printedValue !== null ? printedValue : '-').trim();
+
+                    if (el) {
+                        el.classList.remove('cell-correct', 'cell-wrong');
+                        if (cleanUser === cleanExp) {
+                            correctCells++;
+                            el.classList.add('cell-correct');
+                        } else {
+                            el.classList.add('cell-wrong');
+                        }
+                    }
+                } else {
+                    const fields = [
+                        { id: `p${player}-m0-${i}`, userVal: line.userM0, expVal: exp.m0 },
+                        { id: `p${player}-m1-${i}`, userVal: line.userM1, expVal: exp.m1 },
+                        { id: `p${player}-m2-${i}`, userVal: line.userM2, expVal: exp.m2 },
+                        { id: `p${player}-m3-${i}`, userVal: line.userM3, expVal: exp.m3 },
+                        { id: `p${player}-r1-${i}`, userVal: line.userR1, expVal: exp.r1 },
+                        { id: `p${player}-r2-${i}`, userVal: line.userR2, expVal: exp.r2 }
+                    ];
+
+                    if (hasReg3) fields.push({ id: `p${player}-r3-${i}`, userVal: line.userR3, expVal: exp.r3 });
+
+                    fields.forEach(f => {
+                        totalCells++;
+                        const el = document.getElementById(f.id);
+                        const cleanUser = String(f.userVal || '-').trim();
+                        const cleanExp = String(f.expVal || '-').trim();
+
+                        if (el) {
+                            el.classList.remove('cell-correct', 'cell-wrong');
+                            if (cleanUser === cleanExp) {
+                                correctCells++;
+                                el.classList.add('cell-correct');
+                            } else {
+                                el.classList.add('cell-wrong');
+                            }
+                        }
+                    });
+                }
+            });
+
+            const isTargetPrinted = (printedValue === sc.target);
+            const isAllCellsCorrect = (correctCells === totalCells);
+
+            if (isTargetPrinted && isAllCellsCorrect) {
+                msgEl.innerText = `BENAR! 100% (Printed: ${printedValue})`;
+                msgEl.className = 'font-orbitron text-cyber-green font-bold text-[10px] md:text-[11px]';
+                playSound('success');
+
+                if (player === 1) p1Score += 100;
+                else p2Score += 100;
+
+                updateScores();
+
+                // AUTO SAVE PADA MODE SINGLE PLAYER
+                if (currentGameMode === 'single') {
+                    autoSaveSinglePlayerScore();
+                }
+
+                showVictoryModal(player);
+            } else {
+                let failReason = [];
+                if (!isTargetPrinted) failReason.push(`Target Output Belum Sesuai`);
+                if (!isAllCellsCorrect) failReason.push(`Tabel: ${correctCells}/${totalCells} Benar`);
+
+                msgEl.innerText = `SALAH: ${failReason.join(' | ')}`;
+                msgEl.className = 'font-orbitron text-cyber-p2 font-bold text-[10px] md:text-[11px]';
+                playSound('error');
+            }
+        }
+
+        function updateScores() {
+            document.getElementById('p1-score').innerText = p1Score;
+            document.getElementById('p2-score').innerText = p2Score;
+        }
+
+        function showVictoryModal(winnerPlayer) {
+            const winnerName = winnerPlayer === 1 ? player1Info.name : player2Info.name;
+            document.getElementById('winnerTitle').innerText = `${winnerName.toUpperCase()} MENANG!`;
+            document.getElementById('winnerTitle').className = `font-orbitron font-black text-lg md:text-xl tracking-wider ${winnerPlayer === 1 ? 'text-cyber-p1' : 'text-cyber-p2'}`;
+            
+            document.getElementById('modal-p1-label').innerText = player1Info.name.toUpperCase();
+            document.getElementById('modal-p1-score').innerText = p1Score;
+
+            if (currentGameMode === 'dual') {
+                document.getElementById('modal-p2-box').classList.remove('hidden');
+                document.getElementById('modal-divider').classList.remove('hidden');
+                document.getElementById('modal-p2-label').innerText = player2Info.name.toUpperCase();
+                document.getElementById('modal-p2-score').innerText = p2Score;
+
+                document.getElementById('btnManualSaveSheet').classList.remove('hidden');
+                document.getElementById('autoSaveStatusMsg').classList.add('hidden');
+            } else {
+                document.getElementById('modal-p2-box').classList.add('hidden');
+                document.getElementById('modal-divider').classList.add('hidden');
+
+                document.getElementById('btnManualSaveSheet').classList.add('hidden');
+                document.getElementById('autoSaveStatusMsg').classList.remove('hidden');
+            }
+
+            toggleModal('victoryModal');
+
+            try {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } catch (e) {}
+        }
+
+        function autoSaveSinglePlayerScore() {
+            saveLocalScore(player1Info.name, player1Info.class, p1Score);
+
+            const sheetUrl = localStorage.getItem('mralgo_sheet_url');
+            if (sheetUrl) {
+                const payload = {
+                    nama: player1Info.name,
+                    kelas: player1Info.class,
+                    skor: p1Score,
+                    mode: 'single'
+                };
+
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(() => {});
+            }
+        }
+
+        function nextRound() {
+            toggleModal('victoryModal');
+            const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
+            currentScenarioIdx = (currentScenarioIdx + 1) % list.length;
+            document.getElementById('scenarioSelect').value = currentScenarioIdx;
+            setupGame();
+            clearPlayerProgram(1);
+            if (currentGameMode === 'dual') clearPlayerProgram(2);
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    const s = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('globalTimer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function resetMatch() {
+            p1Score = 0;
+            p2Score = 0;
+            timeLeft = 180;
+            updateScores();
+            clearPlayerProgram(1);
+            if (currentGameMode === 'dual') clearPlayerProgram(2);
+            setupGame();
+            playSound('click');
+        }
+
+        function toggleModal(modalId) {
+            const m = document.getElementById(modalId);
+            m.classList.toggle('hidden');
+        }
+
+        /* LEADERBOARD & GOOGLE SHEETS INTEGRATION */
+
+        function saveSheetUrl() {
+            const url = document.getElementById('sheetApiUrl').value.trim();
+            localStorage.setItem('mralgo_sheet_url', url);
+            alert('URL Web App Google Sheets berhasil disimpan!');
+        }
+
+        function loadSheetUrl() {
+            const url = localStorage.getItem('mralgo_sheet_url') || '';
+            document.getElementById('sheetApiUrl').value = url;
+        }
+
+        function getLocalScores() {
+            return JSON.parse(localStorage.getItem('mralgo_leaderboard') || '[]');
+        }
+
+        function saveLocalScore(name, className, score) {
+            const list = getLocalScores();
+            list.push({ name, class: className, score, date: new Date().toLocaleDateString() });
+            list.sort((a, b) => b.score - a.score);
+            localStorage.setItem('mralgo_leaderboard', JSON.stringify(list.slice(0, 50)));
+            renderLeaderboardTable();
+        }
+
+        function renderLeaderboardTable() {
+            const tbody = document.getElementById('leaderboardTbody');
+            tbody.innerHTML = '';
+            const list = getLocalScores();
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500 italic">Belum ada skor tersimpan</td></tr>`;
+                return;
+            }
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-cyber-border/40 hover:bg-cyber-dark";
+                tr.innerHTML = `
+                    <td class="p-2 font-bold ${idx===0?'text-cyber-yellow':(idx===1?'text-gray-300':(idx===2?'text-amber-600':'text-gray-500'))}">${idx+1}</td>
+                    <td class="p-2 font-semibold text-white">${item.name}</td>
+                    <td class="p-2 text-gray-400">${item.class}</td>
+                    <td class="p-2 text-right font-bold text-cyber-green">${item.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearLocalLeaderboard() {
+            if (confirm('Hapus semua leaderboard lokal?')) {
+                localStorage.removeItem('mralgo_leaderboard');
+                renderLeaderboardTable();
+            }
+        }
+
+        function submitScoreToLeaderboard() {
+            saveLocalScore(player1Info.name, player1Info.class, p1Score);
+
+            if (currentGameMode === 'dual') {
+                saveLocalScore(player2Info.name, player2Info.class, p2Score);
+            }
+
+            const sheetUrl = localStorage.getItem('mralgo_sheet_url');
+
+            if (sheetUrl) {
+                const payload = {
+                    nama: player1Info.name,
+                    kelas: player1Info.class,
+                    skor: p1Score,
+                    mode: currentGameMode
+                };
+
+                fetch(sheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    alert('Skor berhasil dikirim ke Google Spreadsheet!');
+                }).catch(err => {
+                    alert('Gagal mengirim ke Spreadsheet: ' + err.message);
+                });
+            } else {
+                alert('Skor berhasil disimpan di Leaderboard Lokal! (Isi URL Apps Script di menu Leaderboard untuk integrasi Google Sheets).');
+            }
+        }
+    </script>
+</body>
+</html>
