@@ -85,7 +85,6 @@
             text-align: center;
         }
 
-        /* Fixed / Sticky Header */
         .sticky-header-row-1 {
             position: sticky;
             top: 0;
@@ -173,11 +172,7 @@
 
         <div class="flex items-center space-x-1.5 md:space-x-3 flex-wrap">
             <button onclick="toggleModal('setupModal')" class="bg-cyber-p1/20 hover:bg-cyber-p1 text-cyber-p1 hover:text-black border border-cyber-p1/60 font-orbitron text-[10px] md:text-xs font-semibold px-2 py-1 rounded-lg transition-colors flex items-center">
-                <i class="fa-solid fa-gamepad mr-1"></i> Mode Game
-            </button>
-
-            <button onclick="openLeaderboard()" class="bg-cyber-yellow/20 hover:bg-cyber-yellow text-cyber-yellow hover:text-black border border-cyber-yellow/60 font-orbitron text-[10px] md:text-xs font-semibold px-2 py-1 rounded-lg transition-colors flex items-center">
-                <i class="fa-solid fa-trophy mr-1"></i> Leaderboard
+                <i class="fa-solid fa-gamepad mr-1"></i> Identitas / Mode
             </button>
 
             <div class="flex items-center space-x-1">
@@ -211,7 +206,7 @@
                 </div>
                 <div class="text-right flex items-center space-x-2">
                     <span id="p1-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
-                    <div id="p1-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p1">0 Poin</div>
+                    <div id="p1-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p1">0</div>
                 </div>
             </div>
 
@@ -296,7 +291,7 @@
                 </div>
                 <div class="text-right flex items-center space-x-2">
                     <span id="p2-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
-                    <div id="p2-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p2">0 Poin</div>
+                    <div id="p2-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p2">0</div>
                 </div>
             </div>
 
@@ -373,154 +368,122 @@
         </section>
     </main>
 
-    <!-- MODAL SETUP GAME & IDENTITAS SISWA -->
+    <!-- MODAL SETUP GAME & IDENTITAS SISWA + LEADERBOARD LANGSUNG DI AWAL -->
     <div id="setupModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
-        <div class="bg-cyber-card border-2 border-cyber-p1 rounded-xl max-w-md w-full p-5 relative shadow-2xl">
-            <h2 class="font-orbitron font-black text-lg text-cyber-yellow mb-3 text-center">
+        <div class="bg-cyber-card border-2 border-cyber-p1 rounded-xl max-w-md w-full p-4 relative shadow-2xl flex flex-col max-h-[90vh]">
+            <h2 class="font-orbitron font-black text-base md:text-lg text-cyber-yellow mb-2 text-center">
                 <i class="fa-solid fa-user-gear mr-2"></i> PENGATURAN & IDENTITAS
             </h2>
 
-            <div class="mb-4">
-                <label class="text-xs text-gray-300 font-bold block mb-1">PILIH MODE PERMAINAN:</label>
+            <div class="mb-3">
+                <label class="text-[11px] text-gray-300 font-bold block mb-1">PILIH MODE PERMAINAN:</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="btnModeSingle" onclick="selectGameMode('single')" class="bg-cyber-p1 text-black font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p1 transition-all">
+                    <button id="btnModeSingle" onclick="selectGameMode('single')" class="bg-cyber-p1 text-black font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-p1 transition-all">
                         <i class="fa-solid fa-user mr-1"></i> 1 Player (HP/Single)
                     </button>
-                    <button id="btnModeDual" onclick="selectGameMode('dual')" class="bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all">
+                    <button id="btnModeDual" onclick="selectGameMode('dual')" class="bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all">
                         <i class="fa-solid fa-users mr-1"></i> 2 Player (Vs)
                     </button>
                 </div>
             </div>
 
             <!-- Form Single Player -->
-            <div id="formSingle" class="space-y-3">
+            <div id="formSingle" class="space-y-2">
                 <div>
-                    <label class="text-xs text-gray-400 block mb-1">Nama Siswa:</label>
-                    <input type="text" id="inputP1Name" placeholder="Contoh: Budi Santoso" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p1">
+                    <label class="text-[11px] text-gray-400 block mb-0.5">Nama Siswa:</label>
+                    <input type="text" id="inputP1Name" placeholder="Contoh: Budi Santoso" class="w-full bg-cyber-dark border border-cyber-border rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyber-p1">
                 </div>
                 <div>
-                    <label class="text-xs text-gray-400 block mb-1">Kelas:</label>
-                    <input type="text" id="inputP1Class" placeholder="Contoh: X-1" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p1">
+                    <label class="text-[11px] text-gray-400 block mb-0.5">Kelas:</label>
+                    <input type="text" id="inputP1Class" placeholder="Contoh: X-1" class="w-full bg-cyber-dark border border-cyber-border rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyber-p1">
                 </div>
             </div>
 
             <!-- Form Dual Player -->
-            <div id="formDual" class="space-y-3 hidden mt-3 pt-3 border-t border-cyber-border">
+            <div id="formDual" class="space-y-2 hidden mt-2 pt-2 border-t border-cyber-border">
                 <div class="text-xs text-cyber-p2 font-bold">IDENTITAS PLAYER 2 (TIM B):</div>
                 <div>
-                    <label class="text-xs text-gray-400 block mb-1">Nama Player 2 / Tim B:</label>
-                    <input type="text" id="inputP2Name" placeholder="Contoh: Siti Rahma" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p2">
+                    <label class="text-[11px] text-gray-400 block mb-0.5">Nama Player 2 / Tim B:</label>
+                    <input type="text" id="inputP2Name" placeholder="Contoh: Siti Rahma" class="w-full bg-cyber-dark border border-cyber-border rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyber-p2">
                 </div>
                 <div>
-                    <label class="text-xs text-gray-400 block mb-1">Kelas Player 2:</label>
-                    <input type="text" id="inputP2Class" placeholder="Contoh: X-2" class="w-full bg-cyber-dark border border-cyber-border rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyber-p2">
+                    <label class="text-[11px] text-gray-400 block mb-0.5">Kelas Player 2:</label>
+                    <input type="text" id="inputP2Class" placeholder="Contoh: X-2" class="w-full bg-cyber-dark border border-cyber-border rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyber-p2">
                 </div>
             </div>
 
-            <button onclick="saveSetupAndStart()" class="w-full mt-5 bg-gradient-to-r from-cyber-p1 to-cyber-green text-black font-orbitron font-black text-sm py-2.5 rounded-lg shadow-lg">
+            <button onclick="saveSetupAndStart()" class="w-full my-3 bg-gradient-to-r from-cyber-p1 to-cyber-green text-black font-orbitron font-black text-xs md:text-sm py-2 rounded-lg shadow-lg shrink-0">
                 MULAI GAME <i class="fa-solid fa-play ml-1"></i>
             </button>
-        </div>
-    </div>
 
-    <!-- MODAL LEADERBOARD -->
-    <div id="leaderboardModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cyber-card border-2 border-cyber-yellow rounded-xl max-w-md w-full p-4 relative flex flex-col max-h-[85vh]">
-            <button onclick="toggleModal('leaderboardModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-base"></i>
-            </button>
-
-            <div class="flex justify-between items-center mb-2">
-                <h3 class="font-orbitron text-base font-extrabold text-cyber-yellow flex items-center">
-                    <i class="fa-solid fa-trophy mr-2"></i> LEADERBOARD SISWA
-                </h3>
-                <button onclick="fetchSpreadsheetLeaderboard()" title="Refresh Data Spreadsheet" class="text-xs bg-cyber-dark hover:bg-cyber-border border border-cyber-yellow/40 text-cyber-yellow px-2 py-1 rounded flex items-center gap-1 font-orbitron">
-                    <i class="fa-solid fa-rotate mr-1"></i> Sync
-                </button>
-            </div>
-
-            <!-- Config Google Apps Script URL -->
-            <div class="bg-cyber-dark p-2 rounded border border-cyber-border mb-3 space-y-1">
-                <label class="text-[10px] text-gray-400 block"><i class="fa-solid fa-link text-cyber-p1 mr-1"></i> Google Apps Script Web App URL (Spreadsheet):</label>
-                <div class="flex gap-1">
-                    <input type="text" id="sheetApiUrl" placeholder="https://script.google.com/macros/s/AKfycbxwvK9t9d_75X7Yc7EH3ee_fji0xBoU1wCq0JLqznT9FU3AdJ8DANR9CuUN7A42uQHDdg/exec" class="w-full bg-black border border-cyber-border rounded px-2 py-1 text-[10px] font-code text-cyber-p1 focus:outline-none">
-                    <button onclick="saveSheetUrl()" class="bg-cyber-p1 text-black font-orbitron font-bold text-[10px] px-2 py-1 rounded">Simpan</button>
+            <!-- TAMPILAN LEADERBOARD LANGSUNG DI AWAL (DI BAWAH TOMBOL MULAI) -->
+            <div class="flex-1 flex flex-col min-h-0 pt-2 border-t border-cyber-border">
+                <div class="flex justify-between items-center mb-1.5">
+                    <h3 class="font-orbitron text-xs font-bold text-cyber-yellow flex items-center">
+                        <i class="fa-solid fa-trophy mr-1.5"></i> LEADERBOARD SPREADSHEET
+                    </h3>
+                    <button onclick="fetchLeaderboardFromSheet()" class="text-[10px] text-cyber-p1 hover:underline font-code">
+                        <i class="fa-solid fa-rotate mr-1"></i> Refresh
+                    </button>
                 </div>
-            </div>
 
-            <!-- Tabel Skor Lokal / Cloud -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar border border-cyber-border rounded-lg">
-                <table class="w-full text-left font-code text-xs">
-                    <thead class="bg-cyber-dark text-gray-400 border-b border-cyber-border">
-                        <tr>
-                            <th class="p-2">#</th>
-                            <th class="p-2">Nama</th>
-                            <th class="p-2">Kelas</th>
-                            <th class="p-2 text-right">Skor Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardTbody">
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3 flex justify-between items-center">
-                <button onclick="clearLocalLeaderboard()" class="text-red-400 hover:text-red-300 text-[10px] font-orbitron">
-                    <i class="fa-solid fa-trash mr-1"></i> Clear Local
-                </button>
-                <button onclick="toggleModal('leaderboardModal')" class="bg-cyber-yellow text-black font-orbitron font-bold text-xs px-3 py-1.5 rounded">
-                    Tutup
-                </button>
+                <div class="flex-1 overflow-y-auto custom-scrollbar border border-cyber-border rounded-lg bg-cyber-dark">
+                    <table class="w-full text-left font-code text-[11px]">
+                        <thead class="bg-black/60 text-gray-400 border-b border-cyber-border sticky top-0">
+                            <tr>
+                                <th class="p-1.5 w-6">#</th>
+                                <th class="p-1.5">Nama</th>
+                                <th class="p-1.5">Kelas</th>
+                                <th class="p-1.5 text-center">Durasi</th>
+                                <th class="p-1.5 text-right">Skor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTbody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL REVIEW & PEMBAHASAN / RESULT -->
-    <div id="reviewModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-cyber-card border-2 border-cyber-yellow rounded-2xl max-w-md w-full p-5 text-center relative shadow-2xl">
-            <div id="reviewHeaderIcon" class="w-12 h-12 rounded-full bg-cyber-yellow/20 border border-cyber-yellow text-cyber-yellow flex items-center justify-center text-2xl mx-auto mb-2">
-                <i class="fa-solid fa-list-check"></i>
+    <!-- MODAL VICTORY -->
+    <div id="victoryModal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-card border-2 border-cyber-yellow rounded-2xl max-w-sm w-full p-5 text-center relative shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-cyber-yellow/20 border border-cyber-yellow text-cyber-yellow flex items-center justify-center text-2xl mx-auto mb-2">
+                <i class="fa-solid fa-trophy"></i>
             </div>
-            
-            <h2 id="reviewTitle" class="font-orbitron font-black text-xl text-white tracking-wider">HASIL EVALUASI</h2>
-            <p id="reviewSubtitle" class="text-xs text-gray-300 mt-1 mb-3">Ringkasan hasil pengerjaan & akumulasi skor.</p>
+            <h2 id="winnerTitle" class="font-orbitron font-black text-xl text-white tracking-wider">PLAYER 1 MENANG!</h2>
+            <p id="winnerDesc" class="text-xs text-gray-300 mt-1 mb-3">Semua baris instruksi & tabel 100% TEPAT!</p>
 
-            <!-- Card Rincian Skor -->
-            <div class="bg-cyber-dark p-3 rounded-lg border border-cyber-border mb-3 font-orbitron text-xs space-y-2 text-left">
-                <div class="flex justify-between items-center border-b border-cyber-border pb-1.5">
-                    <span class="text-gray-400 text-[11px]">Komponen Benar:</span>
-                    <span id="reviewCorrectCellCount" class="text-cyber-green font-bold text-sm">0 / 0 Sel</span>
+            <div class="bg-cyber-dark p-2 rounded-lg border border-cyber-border mb-3 font-orbitron text-xs flex justify-around">
+                <div>
+                    <span id="modal-p1-label" class="text-gray-500 block text-[10px]">PLAYER 1</span>
+                    <span id="modal-p1-score" class="text-cyber-p1 font-bold text-base">100</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-cyber-border pb-1.5">
-                    <span class="text-gray-400 text-[11px]">Poin Ronde Ini:</span>
-                    <span id="reviewCalculatedScore" class="text-cyber-yellow font-bold text-sm">+0 Poin</span>
-                </div>
-                <div class="flex justify-between items-center pt-0.5">
-                    <span class="text-gray-300 font-bold text-xs">Total Skor Keseluruhan:</span>
-                    <span id="reviewTotalAccumulatedScore" class="text-cyber-p1 font-black text-lg">0 Poin</span>
+                <div id="modal-divider" class="border-r border-cyber-border"></div>
+                <div id="modal-p2-box">
+                    <span id="modal-p2-label" class="text-gray-500 block text-[10px]">PLAYER 2</span>
+                    <span id="modal-p2-score" class="text-cyber-p2 font-bold text-base">0</span>
                 </div>
             </div>
 
-            <!-- Status Auto Update Leaderboard -->
-            <div class="bg-black/60 p-2 rounded-lg border border-cyber-green/40 mb-3 text-left flex items-center space-x-2">
-                <i class="fa-solid fa-cloud-arrow-up text-cyber-green text-sm"></i>
-                <div class="text-[10px]">
-                    <span class="text-cyber-green font-bold block">LEADERBOARD AUTO-UPDATED!</span>
-                    <span id="syncStatusMsg" class="text-gray-400">Skor poin telah otomatis tersimpan.</span>
-                </div>
+            <div id="autoSaveStatusMsg" class="text-[11px] font-bold text-cyber-green mb-2 hidden">
+                <i class="fa-solid fa-circle-check mr-1"></i> Skor & waktu penyelesaian tersimpan!
             </div>
 
             <div class="space-y-2">
-                <button onclick="nextRound()" class="w-full bg-cyber-yellow text-black font-orbitron font-black text-xs py-2.5 rounded-lg shadow-lg hover:bg-yellow-400 transition-all flex items-center justify-center">
-                    SOAL BERIKUTNYA <i class="fa-solid fa-forward ml-2"></i>
+                <button onclick="nextRound()" class="w-full bg-cyber-yellow text-black font-orbitron font-bold text-xs py-2 rounded-lg">
+                    SOAL BERIKUTNYA <i class="fa-solid fa-forward ml-1"></i>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // DATASET SINGLE PLAYER (BERGRADASI: 5 MUDAH + 5 MENENGAH)
-        const SCENARIOS_SINGLE = [
+        // MASUKKAN URL WEB APP APPS SCRIPT SPREADSHEET ANDA DI SINI
+        const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbzeC9CT6bautsKALgVLJVU8ZwL23i_3KRQTbKPxh4lUQYqtZ7kGn7_yon2DcvfAAaKOCg/exec";
+
+        /*const SCENARIOS_SINGLE = [
             { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
             { id: 2, name: "Soal 2: 8 × 9 [Mudah]", formula: "8 × 9", target: 72, memPrefixes: ["B1","B2","B3","B4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [72] },
             { id: 3, name: "Soal 3: 24 - 8 [Mudah]", formula: "24 - 8", target: 16, memPrefixes: ["C1","C2","C3","C4"], numbers: [24, 8], registers: ["REG1","REG2"], extraValues: [16] },
@@ -532,9 +495,16 @@
             { id: 8, name: "Soal 8: (6 × 7) + 5 [2 Operator]", formula: "(6 × 7) + 5", target: 47, memPrefixes: ["H1","H2","H3","H4"], numbers: [6, 7, 5], registers: ["REG1","REG2"], extraValues: [42, 47] },
             { id: 9, name: "Soal 9: 24 / 8 - 4 [2 Operator]", formula: "24 / 8 - 4", target: -1, memPrefixes: ["I1","I2","I3","I4"], numbers: [24, 8, 4], registers: ["REG1","REG2","REG3"], extraValues: [3, -1] },
             { id: 10, name: "Soal 10: (36 - 6) / 2 [2 Operator]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["J1","J2","J3","J4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
+        ];*/
+
+        const SCENARIOS_SINGLE = [
+            { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
+            { id: 2, name: "Soal 2: 36 / 6 [Mudah]", formula: "36 / 6", target: 6, memPrefixes: ["B1","B2","B3","B4"], numbers: [36, 6], registers: ["REG1","REG2"], extraValues: [6] },
+            {id: 3, name: "Soal 3: (15 + 12) × 2 [Sedang]", formula: "(15 + 12) × 2", target: 54, memPrefixes: ["C1","C2","C3","C4"], numbers: [15, 12, 2], registers: ["REG1","REG2"], extraValues: [27, 54] },
+            { id: 4, name: "Soal 4: (24 / 4) + 10 [Susah]", formula: "(24 / 4) + 10", target: 16, memPrefixes: ["D1","D2","D3","D4"], numbers: [24, 4, 10], registers: ["REG1","REG2","REG3"], extraValues: [6, 16] },
+            { id: 5, name: "Soal 5: (36 - 6) / 2 [2 Operator]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["E1","E2","E3","E4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
         ];
 
-        // DATASET DUAL PLAYER BATTLE (SOAL BEDA UNTUK P1 & P2 AGAR TIDAK NYONTEK)
         const SCENARIOS_DUAL_PAIRS = [
             {
                 p1: { id: 101, name: "Match 1 - P1", formula: "9 + 7", target: 16, memPrefixes: ["A1","A2","A3","A4"], numbers: [9, 7], registers: ["REG1","REG2"], extraValues: [16] },
@@ -561,7 +531,9 @@
         let p1Score = 0;
         let p2Score = 0;
         let timerInterval = null;
+        let TOTAL_GAME_TIME = 180; // 3 menit
         let timeLeft = 180;
+        let startTime = null;
 
         let player1Info = { name: "Siswa 1", class: "X-1" };
         let player2Info = { name: "Tim B", class: "X-1" };
@@ -571,7 +543,6 @@
 
         let isDragging = false;
 
-        // Audio Effects Engine
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -625,9 +596,8 @@
 
         window.onload = function() {
             populateSelectOptions();
-            loadSheetUrl();
-            renderLeaderboardTable();
             setupDualTouchEngine();
+            fetchLeaderboardFromSheet();
         };
 
         function selectGameMode(mode) {
@@ -638,12 +608,12 @@
             const fDual = document.getElementById('formDual');
 
             if (mode === 'single') {
-                bSingle.className = "bg-cyber-p1 text-black font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p1 transition-all";
-                bDual.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all";
+                bSingle.className = "bg-cyber-p1 text-black font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-p1 transition-all";
+                bDual.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-border hover:border-cyber-p2 transition-all";
                 fDual.classList.add('hidden');
             } else {
-                bDual.className = "bg-cyber-p2 text-white font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-p2 transition-all";
-                bSingle.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-2 rounded-lg border-2 border-cyber-border hover:border-cyber-p1 transition-all";
+                bDual.className = "bg-cyber-p2 text-white font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-p2 transition-all";
+                bSingle.className = "bg-cyber-dark text-gray-400 font-orbitron font-bold text-xs py-1.5 rounded-lg border-2 border-cyber-border hover:border-cyber-p1 transition-all";
                 fDual.classList.remove('hidden');
             }
             populateSelectOptions();
@@ -1234,15 +1204,6 @@
             program.forEach((line, i) => {
                 const exp = expectedStates[i];
 
-                if (line.arg1) {
-                    totalCells++;
-                    correctCells++;
-                }
-                if (line.arg2) {
-                    totalCells++;
-                    correctCells++;
-                }
-
                 if (line.opcode === 'PRINT') {
                     totalCells++;
                     const el = document.getElementById(`p${player}-m0-${i}`);
@@ -1289,58 +1250,136 @@
                 }
             });
 
-            const roundScore = correctCells;
+            const isTargetPrinted = (printedValue === sc.target);
+            const isAllCellsCorrect = (correctCells === totalCells);
 
-            if (player === 1) p1Score += roundScore;
-            else p2Score += roundScore;
-
-            updateScores();
-
-            // AUTO SAVE LOKAL & SPREADSHEET KETIKA CEK JAWABAN
-            const activePlayer = player === 1 ? player1Info : player2Info;
-            const currentTotalScore = player === 1 ? p1Score : p2Score;
-            
-            saveLocalScore(activePlayer.name, activePlayer.class, currentTotalScore);
-            sendToSpreadsheet(activePlayer.name, activePlayer.class, currentTotalScore, currentGameMode);
-
-            if (correctCells === totalCells) {
-                msgEl.innerText = `SEMPURNA! 100% (+${roundScore} Poin)`;
+            if (isTargetPrinted && isAllCellsCorrect) {
+                msgEl.innerText = `BENAR! 100% (Printed: ${printedValue})`;
                 msgEl.className = 'font-orbitron text-cyber-green font-bold text-[10px] md:text-[11px]';
                 playSound('success');
-            } else {
-                msgEl.innerText = `TEREVALUASI: ${correctCells}/${totalCells} Benar (+${roundScore} Poin)`;
-                msgEl.className = 'font-orbitron text-cyber-yellow font-bold text-[10px] md:text-[11px]';
-                playSound('click');
-            }
 
-            showReviewModal(player, correctCells, totalCells, roundScore, currentTotalScore);
+                if (player === 1) p1Score += 100;
+                else p2Score += 100;
+
+                updateScores();
+                autoSaveScoreToSheet(player);
+                showVictoryModal(player);
+            } else {
+                let failReason = [];
+                if (!isTargetPrinted) failReason.push(`Target Output Belum Sesuai`);
+                if (!isAllCellsCorrect) failReason.push(`Tabel: ${correctCells}/${totalCells} Benar`);
+
+                msgEl.innerText = `SALAH: ${failReason.join(' | ')}`;
+                msgEl.className = 'font-orbitron text-cyber-p2 font-bold text-[10px] md:text-[11px]';
+                playSound('error');
+            }
         }
 
         function updateScores() {
-            document.getElementById('p1-score').innerText = `${p1Score} Poin`;
-            document.getElementById('p2-score').innerText = `${p2Score} Poin`;
+            document.getElementById('p1-score').innerText = p1Score;
+            document.getElementById('p2-score').innerText = p2Score;
         }
 
-        function showReviewModal(player, correct, total, score, totalScore) {
-            const pName = player === 1 ? player1Info.name : player2Info.name;
-            document.getElementById('reviewTitle').innerText = `EVALUASI ${pName.toUpperCase()}`;
-            document.getElementById('reviewCorrectCellCount').innerText = `${correct} / ${total} Komponen`;
-            document.getElementById('reviewCalculatedScore').innerText = `+${score} Poin`;
-            document.getElementById('reviewTotalAccumulatedScore').innerText = `${totalScore} Poin`;
+        function showVictoryModal(winnerPlayer) {
+            const winnerName = winnerPlayer === 1 ? player1Info.name : player2Info.name;
+            document.getElementById('winnerTitle').innerText = `${winnerName.toUpperCase()} MENANG!`;
+            document.getElementById('winnerTitle').className = `font-orbitron font-black text-lg md:text-xl tracking-wider ${winnerPlayer === 1 ? 'text-cyber-p1' : 'text-cyber-p2'}`;
+            
+            document.getElementById('modal-p1-label').innerText = player1Info.name.toUpperCase();
+            document.getElementById('modal-p1-score').innerText = p1Score;
 
-            toggleModal('reviewModal');
-
-            if (correct === total) {
-                try {
-                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-                } catch (e) {}
+            if (currentGameMode === 'dual') {
+                document.getElementById('modal-p2-box').classList.remove('hidden');
+                document.getElementById('modal-divider').classList.remove('hidden');
+                document.getElementById('modal-p2-label').innerText = player2Info.name.toUpperCase();
+                document.getElementById('modal-p2-score').innerText = p2Score;
+            } else {
+                document.getElementById('modal-p2-box').classList.add('hidden');
+                document.getElementById('modal-divider').classList.add('hidden');
             }
+
+            document.getElementById('autoSaveStatusMsg').classList.remove('hidden');
+            toggleModal('victoryModal');
+
+            try {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } catch (e) {}
+        }
+
+        // FUNGSI HITUNG DURASI PENGERJAAN
+        function getElapsedTimeFormatted() {
+            if (!startTime) return "00:00";
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            const m = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+            const s = (elapsedSeconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function autoSaveScoreToSheet(player = 1) {
+            const name = player === 1 ? player1Info.name : player2Info.name;
+            const className = player === 1 ? player1Info.class : player2Info.class;
+            const score = player === 1 ? p1Score : p2Score;
+            const duration = getElapsedTimeFormatted();
+
+            const payload = {
+                nama: name,
+                kelas: className,
+                skor: score,
+                durasi: duration,
+                mode: currentGameMode
+            };
+
+            fetch(DEFAULT_SHEET_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                fetchLeaderboardFromSheet();
+            })
+            .catch(err => console.error("Gagal mengirim skor ke Spreadsheet:", err));
+        }
+
+        function fetchLeaderboardFromSheet() {
+            const tbody = document.getElementById('leaderboardTbody');
+            
+            tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-cyber-yellow italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Spreadsheet...</td></tr>`;
+
+            fetch(DEFAULT_SHEET_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderLeaderboardFromData(data);
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-500 italic">Belum ada skor di Spreadsheet</td></tr>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Gagal mengambil data dari Spreadsheet:", err);
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-red-400 italic">Gagal menghubungkan ke Spreadsheet</td></tr>`;
+                });
+        }
+
+        function renderLeaderboardFromData(list) {
+            const tbody = document.getElementById('leaderboardTbody');
+            tbody.innerHTML = '';
+
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-cyber-border/40 hover:bg-cyber-dark";
+                tr.innerHTML = `
+                    <td class="p-1.5 font-bold ${idx===0?'text-cyber-yellow':(idx===1?'text-gray-300':(idx===2?'text-amber-600':'text-gray-500'))}">${idx+1}</td>
+                    <td class="p-1.5 font-semibold text-white">${item.name}</td>
+                    <td class="p-1.5 text-gray-400">${item.class}</td>
+                    <td class="p-1.5 text-center text-cyber-p1 font-mono">${item.duration || '-'}</td>
+                    <td class="p-1.5 text-right font-bold text-cyber-green">${item.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function nextRound() {
-            if (!document.getElementById('reviewModal').classList.contains('hidden')) {
-                toggleModal('reviewModal');
-            }
+            toggleModal('victoryModal');
             const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
             currentScenarioIdx = (currentScenarioIdx + 1) % list.length;
             document.getElementById('scenarioSelect').value = currentScenarioIdx;
@@ -1350,6 +1389,8 @@
         }
 
         function startTimer() {
+            startTime = Date.now(); // Catat waktu mulai pengerjaan
+            timeLeft = TOTAL_GAME_TIME;
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (timeLeft > 0) {
@@ -1364,7 +1405,8 @@
         function resetMatch() {
             p1Score = 0;
             p2Score = 0;
-            timeLeft = 180;
+            startTime = Date.now();
+            timeLeft = TOTAL_GAME_TIME;
             updateScores();
             clearPlayerProgram(1);
             if (currentGameMode === 'dual') clearPlayerProgram(2);
@@ -1375,129 +1417,6 @@
         function toggleModal(modalId) {
             const m = document.getElementById(modalId);
             m.classList.toggle('hidden');
-        }
-
-        /* LEADERBOARD & GOOGLE SHEETS INTEGRATION */
-
-        function saveSheetUrl() {
-            const url = document.getElementById('sheetApiUrl').value.trim();
-            localStorage.setItem('mralgo_sheet_url', url);
-            alert('URL Web App Google Sheets berhasil disimpan!');
-            fetchSpreadsheetLeaderboard();
-        }
-
-        function loadSheetUrl() {
-            const url = localStorage.getItem('mralgo_sheet_url') || '';
-            document.getElementById('sheetApiUrl').value = url;
-        }
-
-        function openLeaderboard() {
-            toggleModal('leaderboardModal');
-            fetchSpreadsheetLeaderboard();
-        }
-
-        function getLocalScores() {
-            return JSON.parse(localStorage.getItem('mralgo_leaderboard') || '[]');
-        }
-
-        function saveLocalScore(name, className, score) {
-            const list = getLocalScores();
-            const existingIdx = list.findIndex(item => item.name.toLowerCase() === name.toLowerCase() && item.class.toLowerCase() === className.toLowerCase());
-            
-            if (existingIdx !== -1) {
-                list[existingIdx].score = score;
-                list[existingIdx].date = new Date().toLocaleDateString();
-            } else {
-                list.push({ name, class: className, score, date: new Date().toLocaleDateString() });
-            }
-
-            list.sort((a, b) => b.score - a.score);
-            localStorage.setItem('mralgo_leaderboard', JSON.stringify(list.slice(0, 50)));
-            renderLeaderboardTable(list);
-        }
-
-        function sendToSpreadsheet(name, className, score, mode) {
-            const sheetUrl = localStorage.getItem('mralgo_sheet_url');
-            const syncStatusMsg = document.getElementById('syncStatusMsg');
-
-            if (!sheetUrl) {
-                if (syncStatusMsg) syncStatusMsg.innerText = "Tersimpan di Lokal (Spreadsheet URL belum diisi).";
-                return;
-            }
-
-            if (syncStatusMsg) syncStatusMsg.innerText = "Mengirim data ke Spreadsheet...";
-
-            const payload = {
-                nama: name,
-                kelas: className,
-                skor: score,
-                mode: mode
-            };
-
-            fetch(sheetUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                if (syncStatusMsg) syncStatusMsg.innerText = "Berhasil disinkronkan ke Spreadsheet!";
-            }).catch(() => {
-                if (syncStatusMsg) syncStatusMsg.innerText = "Gagal kirim ke Spreadsheet, tersimpan lokal.";
-            });
-        }
-
-        function fetchSpreadsheetLeaderboard() {
-            const sheetUrl = localStorage.getItem('mralgo_sheet_url');
-            if (!sheetUrl) {
-                renderLeaderboardTable(getLocalScores());
-                return;
-            }
-
-            const tbody = document.getElementById('leaderboardTbody');
-            tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-cyber-yellow font-orbitron animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Spreadsheet...</td></tr>`;
-
-            fetch(sheetUrl)
-                .then(res => res.json())
-                .then(data => {
-                    if (Array.isArray(data) && data.length > 0) {
-                        renderLeaderboardTable(data);
-                    } else {
-                        renderLeaderboardTable(getLocalScores());
-                    }
-                })
-                .catch(err => {
-                    renderLeaderboardTable(getLocalScores());
-                });
-        }
-
-        function renderLeaderboardTable(dataList = null) {
-            const tbody = document.getElementById('leaderboardTbody');
-            tbody.innerHTML = '';
-            const list = dataList || getLocalScores();
-
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500 italic">Belum ada skor tersimpan</td></tr>`;
-                return;
-            }
-
-            list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-cyber-border/40 hover:bg-cyber-dark";
-                tr.innerHTML = `
-                    <td class="p-2 font-bold ${idx===0?'text-cyber-yellow':(idx===1?'text-gray-300':(idx===2?'text-amber-600':'text-gray-500'))}">${idx+1}</td>
-                    <td class="p-2 font-semibold text-white">${item.name || item.nama}</td>
-                    <td class="p-2 text-gray-400">${item.class || item.kelas}</td>
-                    <td class="p-2 text-right font-bold text-cyber-green">${item.score || item.skor} Poin</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function clearLocalLeaderboard() {
-            if (confirm('Hapus semua leaderboard lokal?')) {
-                localStorage.removeItem('mralgo_leaderboard');
-                renderLeaderboardTable();
-            }
         }
     </script>
 </body>
