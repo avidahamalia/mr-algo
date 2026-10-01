@@ -483,26 +483,12 @@
         // MASUKKAN URL WEB APP APPS SCRIPT SPREADSHEET ANDA DI SINI
         const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbzeC9CT6bautsKALgVLJVU8ZwL23i_3KRQTbKPxh4lUQYqtZ7kGn7_yon2DcvfAAaKOCg/exec";
 
-        /*const SCENARIOS_SINGLE = [
-            { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
-            { id: 2, name: "Soal 2: 8 × 9 [Mudah]", formula: "8 × 9", target: 72, memPrefixes: ["B1","B2","B3","B4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [72] },
-            { id: 3, name: "Soal 3: 24 - 8 [Mudah]", formula: "24 - 8", target: 16, memPrefixes: ["C1","C2","C3","C4"], numbers: [24, 8], registers: ["REG1","REG2"], extraValues: [16] },
-            { id: 4, name: "Soal 4: 36 / 6 [Mudah]", formula: "36 / 6", target: 6, memPrefixes: ["D1","D2","D3","D4"], numbers: [36, 6], registers: ["REG1","REG2","REG3"], extraValues: [6] },
-            { id: 5, name: "Soal 5: 6 × 7 [Mudah]", formula: "6 × 7", target: 42, memPrefixes: ["E1","E2","E3","E4"], numbers: [6, 7], registers: ["REG1","REG2"], extraValues: [42] },
-
-            { id: 6, name: "Soal 6: (8 × 9) + 2 [2 Operator]", formula: "(8 × 9) + 2", target: 74, memPrefixes: ["F1","F2","F3","F4"], numbers: [8, 9, 2], registers: ["REG1","REG2"], extraValues: [72, 74] },
-            { id: 7, name: "Soal 7: 8 + (9 × 2) [2 Operator]", formula: "8 + (9 × 2)", target: 26, memPrefixes: ["G1","G2","G3","G4"], numbers: [8, 9, 2], registers: ["REG1","REG2"], extraValues: [18, 26] },
-            { id: 8, name: "Soal 8: (6 × 7) + 5 [2 Operator]", formula: "(6 × 7) + 5", target: 47, memPrefixes: ["H1","H2","H3","H4"], numbers: [6, 7, 5], registers: ["REG1","REG2"], extraValues: [42, 47] },
-            { id: 9, name: "Soal 9: 24 / 8 - 4 [2 Operator]", formula: "24 / 8 - 4", target: -1, memPrefixes: ["I1","I2","I3","I4"], numbers: [24, 8, 4], registers: ["REG1","REG2","REG3"], extraValues: [3, -1] },
-            { id: 10, name: "Soal 10: (36 - 6) / 2 [2 Operator]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["J1","J2","J3","J4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
-        ];*/
-
         const SCENARIOS_SINGLE = [
             { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
             { id: 2, name: "Soal 2: 36 / 6 [Mudah]", formula: "36 / 6", target: 6, memPrefixes: ["B1","B2","B3","B4"], numbers: [36, 6], registers: ["REG1","REG2"], extraValues: [6] },
-            {id: 3, name: "Soal 3: (15 + 12) × 2 [Sedang]", formula: "(15 + 12) × 2", target: 54, memPrefixes: ["C1","C2","C3","C4"], numbers: [15, 12, 2], registers: ["REG1","REG2"], extraValues: [27, 54] },
-            { id: 4, name: "Soal 4: (24 / 4) + 10 [Susah]", formula: "(24 / 4) + 10", target: 16, memPrefixes: ["D1","D2","D3","D4"], numbers: [24, 4, 10], registers: ["REG1","REG2","REG3"], extraValues: [6, 16] },
-            { id: 5, name: "Soal 5: (36 - 6) / 2 [2 Operator]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["E1","E2","E3","E4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
+            { id: 3, name: "Soal 3: (15 + 12) × 2 [Sedang]", formula: "(15 + 12) × 2", target: 54, memPrefixes: ["C1","C2","C3","C4"], numbers: [15, 12, 2], registers: ["REG1","REG2"], extraValues: [27, 54] },
+            { id: 4, name: "Soal 4:  10 + (24 / 4) [Susah]", formula: "10 + (24 / 4)", target: 16, memPrefixes: ["D1","D2","D3","D4"], numbers: [10, 24, 4], registers: ["REG1","REG2","REG3"], extraValues: [6, 16] },
+            { id: 5, name: "Soal 5: (36 - 6) / 2 [Susah]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["E1","E2","E3","E4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
         ];
 
         const SCENARIOS_DUAL_PAIRS = [
@@ -526,8 +512,8 @@
 
         const MAX_LKPD_ROWS = 12;
 
-        let currentGameMode = 'single';
-        let currentScenarioIdx = 0;
+        let currentGameMode = localStorage.getItem('mralgo_mode') || 'single';
+        let currentScenarioIdx = parseInt(localStorage.getItem('mralgo_sc_idx')) || 0;
         let p1Score = 0;
         let p2Score = 0;
         let timerInterval = null;
@@ -535,8 +521,8 @@
         let timeLeft = 180;
         let startTime = null;
 
-        let player1Info = { name: "Siswa 1", class: "X-1" };
-        let player2Info = { name: "Tim B", class: "X-1" };
+        let player1Info = JSON.parse(localStorage.getItem('mralgo_p1_info')) || { name: "Siswa 1", class: "X-1" };
+        let player2Info = JSON.parse(localStorage.getItem('mralgo_p2_info')) || { name: "Tim B", class: "X-1" };
 
         const playerPrograms = { 1: [], 2: [] };
         const selectedBlockForPlayer = { 1: null, 2: null };
@@ -595,14 +581,31 @@
         }
 
         window.onload = function() {
+            // Restore input values
+            document.getElementById('inputP1Name').value = player1Info.name !== "Siswa 1" ? player1Info.name : "";
+            document.getElementById('inputP1Class').value = player1Info.class !== "X-1" ? player1Info.class : "";
+            document.getElementById('inputP2Name').value = player2Info.name !== "Tim B" ? player2Info.name : "";
+            document.getElementById('inputP2Class').value = player2Info.class !== "X-1" ? player2Info.class : "";
+
+            selectGameMode(currentGameMode, false);
             populateSelectOptions();
+            document.getElementById('scenarioSelect').value = currentScenarioIdx;
+            
+            applyGameModeUI();
+            setupGame();
             setupDualTouchEngine();
             fetchLeaderboardFromSheet();
         };
 
-        function selectGameMode(mode) {
+        function selectGameMode(mode, resetIdx = true) {
             currentGameMode = mode;
-            currentScenarioIdx = 0;
+            localStorage.setItem('mralgo_mode', mode);
+            
+            if (resetIdx) {
+                currentScenarioIdx = 0;
+                localStorage.setItem('mralgo_sc_idx', 0);
+            }
+            
             const bSingle = document.getElementById('btnModeSingle');
             const bDual = document.getElementById('btnModeDual');
             const fDual = document.getElementById('formDual');
@@ -629,11 +632,13 @@
             }
 
             player1Info = { name: p1N, class: p1C };
+            localStorage.setItem('mralgo_p1_info', JSON.stringify(player1Info));
 
             if (currentGameMode === 'dual') {
                 const p2N = document.getElementById('inputP2Name').value.trim() || 'Player 2';
                 const p2C = document.getElementById('inputP2Class').value.trim() || p1C;
                 player2Info = { name: p2N, class: p2C };
+                localStorage.setItem('mralgo_p2_info', JSON.stringify(player2Info));
             }
 
             toggleModal('setupModal');
@@ -670,6 +675,9 @@
             const sel = document.getElementById('scenarioSelect');
             sel.innerHTML = '';
 
+            const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
+            if (currentScenarioIdx >= list.length) currentScenarioIdx = 0;
+
             if (currentGameMode === 'single') {
                 SCENARIOS_SINGLE.forEach((sc, idx) => {
                     const opt = document.createElement('option');
@@ -685,6 +693,7 @@
                     sel.appendChild(opt);
                 });
             }
+            sel.value = currentScenarioIdx;
         }
 
         function getCurrentScenario(player = 1) {
@@ -710,6 +719,8 @@
         function changeScenario() {
             const sel = document.getElementById('scenarioSelect');
             currentScenarioIdx = parseInt(sel.value);
+            localStorage.setItem('mralgo_sc_idx', currentScenarioIdx);
+            
             playerPrograms[1] = [];
             playerPrograms[2] = [];
             setupGame();
@@ -719,6 +730,8 @@
         function pickRandomScenario() {
             const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
             currentScenarioIdx = Math.floor(Math.random() * list.length);
+            localStorage.setItem('mralgo_sc_idx', currentScenarioIdx);
+            
             document.getElementById('scenarioSelect').value = currentScenarioIdx;
             playerPrograms[1] = [];
             playerPrograms[2] = [];
@@ -963,6 +976,7 @@
             }
         }
 
+        // FITUR TAP DUA KALI / TOGGLE ISI DENGAN "-"
         function handleCellTap(cellEl) {
             if (isDragging) return;
             const player = parseInt(cellEl.getAttribute('data-player'));
@@ -970,7 +984,12 @@
             const field = cellEl.getAttribute('data-field');
             const selected = selectedBlockForPlayer[player];
 
-            if (selected) {
+            const currentVal = playerPrograms[player][rowIdx] ? playerPrograms[player][rowIdx][field] : '-';
+
+            // Jika sel sudah terisi nilai selain '-' dan diklik lagi, ubah nilainya menjadi '-'
+            if (currentVal && currentVal !== '-') {
+                applyValueToCell(player, rowIdx, field, '-');
+            } else if (selected) {
                 applyValueToCell(player, rowIdx, field, selected.val);
             } else {
                 applyValueToCell(player, rowIdx, field, '-');
@@ -1148,23 +1167,27 @@
                         }
                         case 'TAMBAH': {
                             if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
-                            registers['REG2'] = parseInt(registers['REG1']) + parseInt(registers['REG2']);
+                            const resAdd = parseInt(registers['REG1']) + parseInt(registers['REG2']);
+                            if (hasReg3) registers['REG3'] = resAdd; else registers['REG2'] = resAdd;
                             break;
                         }
                         case 'KALI': {
                             if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
-                            registers['REG2'] = parseInt(registers['REG1']) * parseInt(registers['REG2']);
+                            const resMul = parseInt(registers['REG1']) * parseInt(registers['REG2']);
+                            if (hasReg3) registers['REG3'] = resMul; else registers['REG2'] = resMul;
                             break;
                         }
                         case 'KURANG': {
                             if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
-                            registers['REG2'] = parseInt(registers['REG1']) - parseInt(registers['REG2']);
+                            const resSub = parseInt(registers['REG1']) - parseInt(registers['REG2']);
+                            if (hasReg3) registers['REG3'] = resSub; else registers['REG2'] = resSub;
                             break;
                         }
                         case 'BAGI': {
                             if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
                             if (parseInt(registers['REG2']) === 0) throw new Error(`Baris ${i+1}: Div/0!`);
-                            registers['REG3'] = Math.floor(parseInt(registers['REG1']) / parseInt(registers['REG2']));
+                            const resDiv = Math.floor(parseInt(registers['REG1']) / parseInt(registers['REG2']));
+                            if (hasReg3) registers['REG3'] = resDiv; else registers['REG2'] = resDiv;
                             break;
                         }
                         case 'PRINT': {
@@ -1382,6 +1405,7 @@
             toggleModal('victoryModal');
             const list = currentGameMode === 'single' ? SCENARIOS_SINGLE : SCENARIOS_DUAL_PAIRS;
             currentScenarioIdx = (currentScenarioIdx + 1) % list.length;
+            localStorage.setItem('mralgo_sc_idx', currentScenarioIdx);
             document.getElementById('scenarioSelect').value = currentScenarioIdx;
             setupGame();
             clearPlayerProgram(1);
