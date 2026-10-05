@@ -487,7 +487,7 @@
             { id: 1, name: "Soal 1: 8 + 9 [Mudah]", formula: "8 + 9", target: 17, memPrefixes: ["A1","A2","A3","A4"], numbers: [8, 9], registers: ["REG1","REG2"], extraValues: [17] },
             { id: 2, name: "Soal 2: 36 / 6 [Mudah]", formula: "36 / 6", target: 6, memPrefixes: ["B1","B2","B3","B4"], numbers: [36, 6], registers: ["REG1","REG2"], extraValues: [6] },
             { id: 3, name: "Soal 3: (15 + 12) × 2 [Sedang]", formula: "(15 + 12) × 2", target: 54, memPrefixes: ["C1","C2","C3","C4"], numbers: [15, 12, 2], registers: ["REG1","REG2"], extraValues: [27, 54] },
-            { id: 4, name: "Soal 4:  10 + (24 / 4) [Susah]", formula: "10 + (24 / 4)", target: 16, memPrefixes: ["D1","D2","D3","D4"], numbers: [10, 24, 4], registers: ["REG1","REG2","REG3"], extraValues: [6, 16] },
+            { id: 4, name: "Soal 4: 10 + (24 / 4) [Susah]", formula: "10 + (24 / 4)", target: 16, memPrefixes: ["D1","D2","D3","D4"], numbers: [10, 24, 4], registers: ["REG1","REG2","REG3"], extraValues: [6, 16] },
             { id: 5, name: "Soal 5: (36 - 6) / 2 [Susah]", formula: "(36 - 6) / 2", target: 15, memPrefixes: ["E1","E2","E3","E4"], numbers: [36, 6, 2], registers: ["REG1","REG2","REG3"], extraValues: [30, 15] }
         ];
 
@@ -926,11 +926,11 @@
                     line.arg2 = '';
                 }
             } else if (type === 'operand') {
-                if (slotTarget === 'arg1') line.arg1 = String(val);
-                else if (slotTarget === 'arg2') line.arg2 = String(val);
+                if (slotTarget === 'arg1') line.arg1 = String(val).trim();
+                else if (slotTarget === 'arg2') line.arg2 = String(val).trim();
                 else {
-                    if (!line.arg1 || line.arg1 === '___') line.arg1 = String(val);
-                    else line.arg2 = String(val);
+                    if (!line.arg1 || line.arg1 === '___') line.arg1 = String(val).trim();
+                    else line.arg2 = String(val).trim();
                 }
             }
 
@@ -947,7 +947,7 @@
                     userR1: '-', userR2: '-', userR3: '-'
                 };
             }
-            playerPrograms[player][rowIdx][field] = String(val);
+            playerPrograms[player][rowIdx][field] = String(val).trim();
             renderLKPDTable(player);
             playSound('add');
         }
@@ -984,7 +984,7 @@
             const field = cellEl.getAttribute('data-field');
             const selected = selectedBlockForPlayer[player];
 
-            const currentVal = playerPrograms[player][rowIdx] ? playerPrograms[player][rowIdx][field] : '-';
+            const currentVal = playerPrograms[player][rowIdx] ? String(playerPrograms[player][rowIdx][field] || '-').trim() : '-';
 
             // Jika sel sudah terisi nilai selain '-' dan diklik lagi, ubah nilainya menjadi '-'
             if (currentVal && currentVal !== '-') {
@@ -1130,6 +1130,14 @@
             const program = playerPrograms[player];
             const msgEl = document.getElementById(`p${player}-status-msg`);
 
+            // Bersihkan semua highlight warna sel lama sebelum validasi baru
+            const tbody = document.getElementById(`p${player}-table-body`);
+            if (tbody) {
+                tbody.querySelectorAll('.cell-zone').forEach(el => {
+                    el.classList.remove('cell-correct', 'cell-wrong');
+                });
+            }
+
             if (!program || program.length === 0) {
                 msgEl.innerText = 'ERR: Program Kosong!';
                 msgEl.className = 'font-orbitron text-red-500 font-bold text-[10px] md:text-[11px]';
@@ -1204,13 +1212,13 @@
                 }
 
                 expectedStates.push({
-                    m0: String(memory[sc.memPrefixes[0]]),
-                    m1: String(memory[sc.memPrefixes[1]]),
-                    m2: String(memory[sc.memPrefixes[2]]),
-                    m3: String(memory[sc.memPrefixes[3]]),
-                    r1: String(registers['REG1']),
-                    r2: String(registers['REG2']),
-                    r3: String(registers['REG3'])
+                    m0: String(memory[sc.memPrefixes[0]] !== undefined ? memory[sc.memPrefixes[0]] : '-').trim(),
+                    m1: String(memory[sc.memPrefixes[1]] !== undefined ? memory[sc.memPrefixes[1]] : '-').trim(),
+                    m2: String(memory[sc.memPrefixes[2]] !== undefined ? memory[sc.memPrefixes[2]] : '-').trim(),
+                    m3: String(memory[sc.memPrefixes[3]] !== undefined ? memory[sc.memPrefixes[3]] : '-').trim(),
+                    r1: String(registers['REG1'] !== undefined ? registers['REG1'] : '-').trim(),
+                    r2: String(registers['REG2'] !== undefined ? registers['REG2'] : '-').trim(),
+                    r3: String(registers['REG3'] !== undefined ? registers['REG3'] : '-').trim()
                 });
             }
 
@@ -1273,7 +1281,7 @@
                 }
             });
 
-            const isTargetPrinted = (printedValue === sc.target);
+            const isTargetPrinted = (String(printedValue).trim() === String(sc.target).trim());
             const isAllCellsCorrect = (correctCells === totalCells);
 
             if (isTargetPrinted && isAllCellsCorrect) {
