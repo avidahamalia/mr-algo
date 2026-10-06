@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mr. ALGO Battle Game - Mesin Konseptual Sederhana (Single & Dual Player)</title>
+    <title>Mr. ALGO - CPU Assembly Battle Game (Single & Dual Player)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -38,9 +38,13 @@
         * {
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            height: 100%;
+            width: 100vw;
+            overflow: hidden;
             background-color: #05070c;
             color: #e2e8f0;
             font-family: 'Rajdhani', sans-serif;
@@ -64,8 +68,8 @@
             -webkit-overflow-scrolling: touch;
         }
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 3px;
+            height: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-track { background: #080b12; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -81,7 +85,7 @@
 
         .lkpd-table th, .lkpd-table td {
             border: 1px solid #1c2638;
-            padding: 2px;
+            padding: 1px !important;
             text-align: center;
         }
 
@@ -92,13 +96,13 @@
         }
         .sticky-header-row-2 {
             position: sticky;
-            top: 21px;
+            top: 18px;
             z-index: 19;
         }
 
         .cell-drop-target {
             width: 100%;
-            height: 24px;
+            height: 20px !important;
             background: #000000;
             border: 1px solid #2d3748;
             color: #ffffff;
@@ -106,9 +110,9 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 3px;
             font-family: 'Fira Code', monospace;
-            font-size: 11px;
+            font-size: 10px !important;
             transition: background-color 0.1s, border-color 0.1s;
             touch-action: none;
             cursor: pointer;
@@ -156,96 +160,96 @@
         }
     </style>
 </head>
-<body class="min-h-screen w-screen grid-bg flex flex-col justify-between overflow-x-hidden md:overflow-hidden">
+<body class="h-screen w-screen grid-bg flex flex-col justify-between overflow-hidden">
 
     <!-- HEADER -->
-    <header class="bg-cyber-dark border-b border-cyber-border px-3 py-2 flex flex-wrap justify-between items-center z-40 gap-2">
+    <header class="bg-cyber-dark border-b border-cyber-border px-3 py-1.5 flex flex-wrap justify-between items-center z-40 gap-2 shrink-0">
         <div class="flex items-center space-x-2">
-            <div class="bg-gradient-to-r from-cyber-p1 to-cyber-accent p-1.5 rounded-lg text-black font-black text-base">
+            <div class="bg-gradient-to-r from-cyber-p1 to-cyber-accent p-1 rounded-lg text-black font-black text-sm">
                 <i class="fa-solid fa-microchip"></i>
             </div>
             <div>
-                <h1 class="font-orbitron font-extrabold text-sm md:text-base tracking-wider text-white">MR. ALGO <span id="modeBadge" class="text-cyber-yellow text-[10px] px-1.5 py-0.5 rounded border border-cyber-yellow/40 bg-cyber-yellow/10">SINGLE PLAYER</span></h1>
-                <p class="text-[9px] text-gray-400">Informatika SMA - Machine Code Game</p>
+                <h1 class="font-orbitron font-extrabold text-xs md:text-sm tracking-wider text-white">MR. ALGO <span id="modeBadge" class="text-cyber-yellow text-[9px] px-1 py-0.5 rounded border border-cyber-yellow/40 bg-cyber-yellow/10">SINGLE PLAYER</span></h1>
+                <p class="text-[8px] text-gray-400 leading-none">Informatika SMA - Machine Code Game</p>
             </div>
         </div>
 
-        <div class="flex items-center space-x-1.5 md:space-x-3 flex-wrap">
-            <button onclick="toggleModal('setupModal')" class="bg-cyber-p1/20 hover:bg-cyber-p1 text-cyber-p1 hover:text-black border border-cyber-p1/60 font-orbitron text-[10px] md:text-xs font-semibold px-2 py-1 rounded-lg transition-colors flex items-center">
-                <i class="fa-solid fa-gamepad mr-1"></i> Identitas / Mode
+        <div class="flex items-center space-x-1.5 md:space-x-2 flex-wrap">
+            <button onclick="toggleModal('setupModal')" class="bg-cyber-p1/20 hover:bg-cyber-p1 text-cyber-p1 hover:text-black border border-cyber-p1/60 font-orbitron text-[10px] font-semibold px-2 py-0.5 rounded transition-colors flex items-center">
+                <i class="fa-solid fa-gamepad mr-1"></i> Mode
             </button>
 
             <div class="flex items-center space-x-1">
-                <select id="scenarioSelect" onchange="changeScenario()" class="bg-cyber-card border border-cyber-border text-cyber-yellow font-code text-[11px] rounded-lg px-2 py-1 focus:outline-none cursor-pointer">
+                <select id="scenarioSelect" onchange="changeScenario()" class="bg-cyber-card border border-cyber-border text-cyber-yellow font-code text-[10px] rounded px-1.5 py-0.5 focus:outline-none cursor-pointer">
                 </select>
-                <button onclick="pickRandomScenario()" class="bg-cyber-dark hover:bg-cyber-card text-cyber-p1 border border-cyber-border font-orbitron text-[10px] p-1.5 rounded-lg">
+                <button onclick="pickRandomScenario()" class="bg-cyber-dark hover:bg-cyber-card text-cyber-p1 border border-cyber-border font-orbitron text-[10px] p-1 rounded">
                     <i class="fa-solid fa-shuffle"></i>
                 </button>
             </div>
 
-            <div class="flex items-center bg-cyber-card border border-cyber-border px-2 py-1 rounded-lg">
-                <i class="fa-solid fa-stopwatch text-cyber-yellow mr-1 text-xs"></i>
-                <span id="globalTimer" class="font-orbitron text-xs font-bold text-white">03:00</span>
+            <div class="flex items-center bg-cyber-card border border-cyber-border px-1.5 py-0.5 rounded">
+                <i class="fa-solid fa-stopwatch text-cyber-yellow mr-1 text-[10px]"></i>
+                <span id="globalTimer" class="font-orbitron text-[11px] font-bold text-white">03:00</span>
             </div>
 
-            <button onclick="resetMatch()" class="bg-cyber-accent/30 hover:bg-cyber-accent text-white border border-cyber-accent/60 font-orbitron text-[10px] md:text-xs font-semibold px-3 py-1 rounded-lg transition-colors flex items-center">
+            <button onclick="resetMatch()" class="bg-cyber-accent/30 hover:bg-cyber-accent text-white border border-cyber-accent/60 font-orbitron text-[10px] font-semibold px-2 py-0.5 rounded transition-colors flex items-center">
                 <i class="fa-solid fa-rotate-right mr-1"></i> Reset
             </button>
         </div>
     </header>
 
-    <!-- MAIN GAME FIELD -->
-    <main id="mainGameGrid" class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 overflow-y-auto lg:overflow-hidden">
+    <!-- MAIN GAME FIELD (Fit Layout Ke Batas Layar) -->
+    <main id="mainGameGrid" class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-1.5 overflow-hidden min-h-0">
         
         <!-- PLAYER 1 (UTAMA / SINGLE PLAYER) -->
-        <section id="p1-container" class="bg-cyber-card border-2 border-cyber-p1/60 rounded-xl p-2 flex flex-col justify-between relative h-full">
-            <div class="flex justify-between items-center border-b border-cyber-border pb-1">
-                <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-cyber-p1"></span>
-                    <h2 id="p1-label-name" class="font-orbitron font-extrabold text-cyber-p1 text-sm md:text-base tracking-wider">PLAYER 1</h2>
+        <section id="p1-container" class="bg-cyber-card border-2 border-cyber-p1/60 rounded-xl p-1.5 flex flex-col justify-between relative h-full overflow-hidden">
+            <div class="flex justify-between items-center border-b border-cyber-border pb-0.5 shrink-0">
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-cyber-p1"></span>
+                    <h2 id="p1-label-name" class="font-orbitron font-extrabold text-cyber-p1 text-xs md:text-sm tracking-wider">PLAYER 1</h2>
                 </div>
                 <div class="text-right flex items-center space-x-2">
-                    <span id="p1-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
-                    <div id="p1-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p1">0</div>
+                    <span id="p1-label-class" class="text-[9px] text-gray-400 uppercase bg-cyber-dark px-1.5 py-0.5 rounded border border-cyber-border">Kelas: -</span>
+                    <div id="p1-score" class="font-orbitron font-black text-sm md:text-base text-cyber-p1">0</div>
                 </div>
             </div>
 
-            <div class="my-1 bg-cyber-dark border border-cyber-p1/30 rounded-lg p-1.5 flex justify-between items-center">
+            <div class="my-1 bg-cyber-dark border border-cyber-p1/30 rounded p-1 flex justify-between items-center shrink-0">
                 <div>
-                    <span class="text-[9px] text-cyber-p1 font-bold uppercase tracking-wider block">Soal Matematika:</span>
-                    <span id="p1-target-formula" class="font-orbitron text-white text-xs md:text-sm font-bold">8 + 9</span>
+                    <span class="text-[8px] text-cyber-p1 font-bold uppercase tracking-wider block leading-none">Soal Matematika:</span>
+                    <span id="p1-target-formula" class="font-orbitron text-white text-xs font-bold">8 + 9</span>
                 </div>
                 <div class="text-right">
-                    <span class="text-[9px] text-gray-400 uppercase block">Target Output:</span>
-                    <span id="p1-target-value" class="font-orbitron text-cyber-yellow text-sm md:text-base font-black">17</span>
+                    <span class="text-[8px] text-gray-400 uppercase block leading-none">Target Output:</span>
+                    <span id="p1-target-value" class="font-orbitron text-cyber-yellow text-xs md:text-sm font-black">17</span>
                 </div>
             </div>
 
-            <!-- TABEL LKPD P1 -->
-            <div class="flex-1 my-1 bg-cyber-dark border border-cyber-border rounded-lg p-1 custom-scrollbar max-h-[300px] lg:max-h-none overflow-y-auto relative">
-                <div class="flex justify-between items-center mb-1 bg-cyber-dark pb-1 border-b border-cyber-border/40">
-                    <span class="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase">
+            <!-- TABEL LKPD P1 (Scrollable Jika Meluap) -->
+            <div class="flex-1 min-h-0 my-0.5 bg-cyber-dark border border-cyber-border rounded p-1 custom-scrollbar overflow-y-auto relative">
+                <div class="flex justify-between items-center mb-0.5 bg-cyber-dark pb-0.5 border-b border-cyber-border/40">
+                    <span class="text-[9px] text-gray-300 font-bold uppercase">
                         <i class="fa-solid fa-table-list text-cyber-p1 mr-1"></i> Mesin Konseptual
                     </span>
-                    <span id="p1-slot-count" class="text-[10px] text-cyber-p1 font-code font-bold">0/12 Baris</span>
+                    <span id="p1-slot-count" class="text-[9px] text-cyber-p1 font-code font-bold">0/12 Baris</span>
                 </div>
 
-                <table class="w-full lkpd-table font-code text-[10px] md:text-[11px] border-collapse">
+                <table class="w-full lkpd-table font-code text-[9px] border-collapse">
                     <thead>
-                        <tr class="bg-black text-gray-300 uppercase text-[8px] md:text-[9px] sticky-header-row-1">
-                            <th class="w-2/5 py-1 text-left px-1.5 bg-black">Instruksi Kode</th>
+                        <tr class="bg-black text-gray-300 uppercase text-[8px] sticky-header-row-1">
+                            <th class="w-2/5 py-0.5 text-left px-1 bg-black">Instruksi Kode</th>
                             <th colspan="4" class="bg-cyan-950 text-cyber-p1">Memory Map</th>
                             <th colspan="3" id="p1-cpu-header" class="bg-indigo-950 text-cyber-yellow">CPU Map</th>
                         </tr>
-                        <tr class="bg-cyber-card text-[8px] md:text-[9px] text-gray-400 sticky-header-row-2">
+                        <tr class="bg-cyber-card text-[8px] text-gray-400 sticky-header-row-2">
                             <th class="text-left px-1 bg-cyber-card">Sintaks Mesin</th>
-                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m0">A1</th>
-                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m1">A2</th>
-                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m2">A3</th>
-                            <th class="w-7 text-cyber-p1 bg-cyber-card" id="p1-th-m3">A4</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG1</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG2</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card" id="p1-th-reg3">REG3</th>
+                            <th class="w-6 text-cyber-p1 bg-cyber-card" id="p1-th-m0">A1</th>
+                            <th class="w-6 text-cyber-p1 bg-cyber-card" id="p1-th-m1">A2</th>
+                            <th class="w-6 text-cyber-p1 bg-cyber-card" id="p1-th-m2">A3</th>
+                            <th class="w-6 text-cyber-p1 bg-cyber-card" id="p1-th-m3">A4</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card">REG1</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card">REG2</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card" id="p1-th-reg3">REG3</th>
                         </tr>
                     </thead>
                     <tbody id="p1-table-body">
@@ -254,83 +258,83 @@
             </div>
 
             <!-- Feedback P1 -->
-            <div id="p1-feedback-box" class="bg-black border border-cyber-p1/40 p-1 rounded-lg my-0.5 flex justify-between items-center">
-                <span class="text-[9px] md:text-[10px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p1 mr-1"></i> STATUS:</span>
-                <span id="p1-status-msg" class="font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]">Siap Diperiksa</span>
+            <div id="p1-feedback-box" class="bg-black border border-cyber-p1/40 p-0.5 px-1 rounded my-0.5 flex justify-between items-center shrink-0">
+                <span class="text-[8px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p1 mr-1"></i> STATUS:</span>
+                <span id="p1-status-msg" class="font-orbitron text-gray-300 font-bold text-[9px]">Siap Diperiksa</span>
             </div>
 
             <!-- Bank Balok P1 -->
-            <div class="bg-cyber-dark border border-cyber-border rounded-lg p-1.5 my-0.5 space-y-1">
-                <div class="text-[8px] md:text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+            <div class="bg-cyber-dark border border-cyber-border rounded p-1 my-0.5 space-y-0.5 shrink-0">
+                <div class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">
                     <span><i class="fa-solid fa-hand-pointer text-cyber-p1 mr-1"></i> Tap/Drag Balok Ke Tabel</span>
                 </div>
-                <div class="flex flex-wrap gap-1" id="p1-palette-instructions"></div>
-                <div class="flex flex-wrap gap-1" id="p1-palette-operands"></div>
+                <div class="flex flex-wrap gap-0.5" id="p1-palette-instructions"></div>
+                <div class="flex flex-wrap gap-0.5" id="p1-palette-operands"></div>
             </div>
 
             <!-- Actions P1 -->
-            <div class="grid grid-cols-3 gap-1.5 mt-0.5">
-                <button onclick="clearPlayerProgram(1)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-trash mr-1"></i> HAPUS
+            <div class="grid grid-cols-3 gap-1 mt-0.5 shrink-0">
+                <button onclick="clearPlayerProgram(1)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-trash mr-0.5"></i> HAPUS
                 </button>
-                <button onclick="popLastLine(1)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> UNDO
+                <button onclick="popLastLine(1)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-rotate-left mr-0.5"></i> UNDO
                 </button>
-                <button onclick="validatePlayerAnswers(1)" id="p1-exec-btn" class="bg-cyber-p1 text-black font-orbitron font-extrabold text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-check-double mr-1"></i> CEK JAWABAN
+                <button onclick="validatePlayerAnswers(1)" id="p1-exec-btn" class="bg-cyber-p1 text-black font-orbitron font-extrabold text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-check-double mr-0.5"></i> CEK
                 </button>
             </div>
         </section>
 
         <!-- PLAYER 2 / CPU CONTAINER -->
-        <section id="p2-container" class="bg-cyber-card border-2 border-cyber-p2/60 rounded-xl p-2 flex flex-col justify-between relative h-full">
-            <div class="flex justify-between items-center border-b border-cyber-border pb-1">
-                <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-cyber-p2"></span>
-                    <h2 id="p2-label-name" class="font-orbitron font-extrabold text-cyber-p2 text-sm md:text-base tracking-wider">PLAYER 2</h2>
+        <section id="p2-container" class="bg-cyber-card border-2 border-cyber-p2/60 rounded-xl p-1.5 flex flex-col justify-between relative h-full overflow-hidden">
+            <div class="flex justify-between items-center border-b border-cyber-border pb-0.5 shrink-0">
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-cyber-p2"></span>
+                    <h2 id="p2-label-name" class="font-orbitron font-extrabold text-cyber-p2 text-xs md:text-sm tracking-wider">PLAYER 2</h2>
                 </div>
                 <div class="text-right flex items-center space-x-2">
-                    <span id="p2-label-class" class="text-[10px] text-gray-400 uppercase bg-cyber-dark px-2 py-0.5 rounded border border-cyber-border">Kelas: -</span>
-                    <div id="p2-score" class="font-orbitron font-black text-base md:text-lg text-cyber-p2">0</div>
+                    <span id="p2-label-class" class="text-[9px] text-gray-400 uppercase bg-cyber-dark px-1.5 py-0.5 rounded border border-cyber-border">Kelas: -</span>
+                    <div id="p2-score" class="font-orbitron font-black text-sm md:text-base text-cyber-p2">0</div>
                 </div>
             </div>
 
-            <div class="my-1 bg-cyber-dark border border-cyber-p2/30 rounded-lg p-1.5 flex justify-between items-center">
+            <div class="my-1 bg-cyber-dark border border-cyber-p2/30 rounded p-1 flex justify-between items-center shrink-0">
                 <div>
-                    <span class="text-[9px] text-cyber-p2 font-bold uppercase tracking-wider block">Soal Matematika:</span>
-                    <span id="p2-target-formula" class="font-orbitron text-white text-xs md:text-sm font-bold">8 + 9</span>
+                    <span class="text-[8px] text-cyber-p2 font-bold uppercase tracking-wider block leading-none">Soal Matematika:</span>
+                    <span id="p2-target-formula" class="font-orbitron text-white text-xs font-bold">8 + 9</span>
                 </div>
                 <div class="text-right">
-                    <span class="text-[9px] text-gray-400 uppercase block">Target Output:</span>
-                    <span id="p2-target-value" class="font-orbitron text-cyber-yellow text-sm md:text-base font-black">17</span>
+                    <span class="text-[8px] text-gray-400 uppercase block leading-none">Target Output:</span>
+                    <span id="p2-target-value" class="font-orbitron text-cyber-yellow text-xs md:text-sm font-black">17</span>
                 </div>
             </div>
 
             <!-- TABEL LKPD P2 -->
-            <div class="flex-1 my-1 bg-cyber-dark border border-cyber-border rounded-lg p-1 custom-scrollbar max-h-[300px] lg:max-h-none overflow-y-auto relative">
-                <div class="flex justify-between items-center mb-1 bg-cyber-dark pb-1 border-b border-cyber-border/40">
-                    <span class="text-[10px] md:text-[11px] text-gray-300 font-bold uppercase">
+            <div class="flex-1 min-h-0 my-0.5 bg-cyber-dark border border-cyber-border rounded p-1 custom-scrollbar overflow-y-auto relative">
+                <div class="flex justify-between items-center mb-0.5 bg-cyber-dark pb-0.5 border-b border-cyber-border/40">
+                    <span class="text-[9px] text-gray-300 font-bold uppercase">
                         <i class="fa-solid fa-table-list text-cyber-p2 mr-1"></i> Mesin Konseptual
                     </span>
-                    <span id="p2-slot-count" class="text-[10px] text-cyber-p2 font-code font-bold">0/12 Baris</span>
+                    <span id="p2-slot-count" class="text-[9px] text-cyber-p2 font-code font-bold">0/12 Baris</span>
                 </div>
 
-                <table class="w-full lkpd-table font-code text-[10px] md:text-[11px] border-collapse">
+                <table class="w-full lkpd-table font-code text-[9px] border-collapse">
                     <thead>
-                        <tr class="bg-black text-gray-300 uppercase text-[8px] md:text-[9px] sticky-header-row-1">
-                            <th class="w-2/5 py-1 text-left px-1.5 bg-black">Instruksi Kode</th>
+                        <tr class="bg-black text-gray-300 uppercase text-[8px] sticky-header-row-1">
+                            <th class="w-2/5 py-0.5 text-left px-1 bg-black">Instruksi Kode</th>
                             <th colspan="4" class="bg-rose-950 text-cyber-p2">Memory Map</th>
                             <th colspan="3" id="p2-cpu-header" class="bg-indigo-950 text-cyber-yellow">CPU Map</th>
                         </tr>
-                        <tr class="bg-cyber-card text-[8px] md:text-[9px] text-gray-400 sticky-header-row-2">
+                        <tr class="bg-cyber-card text-[8px] text-gray-400 sticky-header-row-2">
                             <th class="text-left px-1 bg-cyber-card">Sintaks Mesin</th>
-                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m0">A1</th>
-                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m1">A2</th>
-                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m2">A3</th>
-                            <th class="w-7 text-cyber-p2 bg-cyber-card" id="p2-th-m3">A4</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG1</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card">REG2</th>
-                            <th class="w-7 text-cyber-yellow bg-cyber-card" id="p2-th-reg3">REG3</th>
+                            <th class="w-6 text-cyber-p2 bg-cyber-card" id="p2-th-m0">A1</th>
+                            <th class="w-6 text-cyber-p2 bg-cyber-card" id="p2-th-m1">A2</th>
+                            <th class="w-6 text-cyber-p2 bg-cyber-card" id="p2-th-m2">A3</th>
+                            <th class="w-6 text-cyber-p2 bg-cyber-card" id="p2-th-m3">A4</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card">REG1</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card">REG2</th>
+                            <th class="w-6 text-cyber-yellow bg-cyber-card" id="p2-th-reg3">REG3</th>
                         </tr>
                     </thead>
                     <tbody id="p2-table-body">
@@ -339,30 +343,30 @@
             </div>
 
             <!-- Feedback P2 -->
-            <div id="p2-feedback-box" class="bg-black border border-cyber-p2/40 p-1 rounded-lg my-0.5 flex justify-between items-center">
-                <span class="text-[9px] md:text-[10px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p2 mr-1"></i> STATUS:</span>
-                <span id="p2-status-msg" class="font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]">Siap Diperiksa</span>
+            <div id="p2-feedback-box" class="bg-black border border-cyber-p2/40 p-0.5 px-1 rounded my-0.5 flex justify-between items-center shrink-0">
+                <span class="text-[8px] text-gray-400 font-code"><i class="fa-solid fa-check-double text-cyber-p2 mr-1"></i> STATUS:</span>
+                <span id="p2-status-msg" class="font-orbitron text-gray-300 font-bold text-[9px]">Siap Diperiksa</span>
             </div>
 
             <!-- Bank Balok P2 -->
-            <div class="bg-cyber-dark border border-cyber-border rounded-lg p-1.5 my-0.5 space-y-1">
-                <div class="text-[8px] md:text-[9px] text-gray-400 font-bold uppercase tracking-wider">
+            <div class="bg-cyber-dark border border-cyber-border rounded p-1 my-0.5 space-y-0.5 shrink-0">
+                <div class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">
                     <span><i class="fa-solid fa-hand-pointer text-cyber-p2 mr-1"></i> Tap/Drag Balok Ke Tabel</span>
                 </div>
-                <div class="flex flex-wrap gap-1" id="p2-palette-instructions"></div>
-                <div class="flex flex-wrap gap-1" id="p2-palette-operands"></div>
+                <div class="flex flex-wrap gap-0.5" id="p2-palette-instructions"></div>
+                <div class="flex flex-wrap gap-0.5" id="p2-palette-operands"></div>
             </div>
 
             <!-- Actions P2 -->
-            <div class="grid grid-cols-3 gap-1.5 mt-0.5">
-                <button onclick="clearPlayerProgram(2)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-trash mr-1"></i> HAPUS
+            <div class="grid grid-cols-3 gap-1 mt-0.5 shrink-0">
+                <button onclick="clearPlayerProgram(2)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 font-orbitron text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-trash mr-0.5"></i> HAPUS
                 </button>
-                <button onclick="popLastLine(2)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> UNDO
+                <button onclick="popLastLine(2)" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700 font-orbitron text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-rotate-left mr-0.5"></i> UNDO
                 </button>
-                <button onclick="validatePlayerAnswers(2)" id="p2-exec-btn" class="bg-cyber-p2 text-white font-orbitron font-extrabold text-[10px] md:text-xs py-1.5 rounded-lg">
-                    <i class="fa-solid fa-check-double mr-1"></i> CEK JAWABAN
+                <button onclick="validatePlayerAnswers(2)" id="p2-exec-btn" class="bg-cyber-p2 text-white font-orbitron font-extrabold text-[9px] py-1 rounded">
+                    <i class="fa-solid fa-check-double mr-0.5"></i> CEK
                 </button>
             </div>
         </section>
@@ -480,7 +484,6 @@
     </div>
 
     <script>
-        // MASUKKAN URL WEB APP APPS SCRIPT SPREADSHEET ANDA DI SINI
         const DEFAULT_SHEET_URL = "https://script.google.com/macros/s/AKfycbzeC9CT6bautsKALgVLJVU8ZwL23i_3KRQTbKPxh4lUQYqtZ7kGn7_yon2DcvfAAaKOCg/exec";
 
         const SCENARIOS_SINGLE = [
@@ -517,7 +520,7 @@
         let p1Score = 0;
         let p2Score = 0;
         let timerInterval = null;
-        let TOTAL_GAME_TIME = 180; // 3 menit
+        let TOTAL_GAME_TIME = 180;
         let timeLeft = 180;
         let startTime = null;
 
@@ -581,7 +584,6 @@
         }
 
         window.onload = function() {
-            // Restore input values
             document.getElementById('inputP1Name').value = player1Info.name !== "Siswa 1" ? player1Info.name : "";
             document.getElementById('inputP1Class').value = player1Info.class !== "X-1" ? player1Info.class : "";
             document.getElementById('inputP2Name').value = player2Info.name !== "Tim B" ? player2Info.name : "";
@@ -657,14 +659,14 @@
 
             if (currentGameMode === 'single') {
                 p2Container.classList.add('hidden');
-                mainGrid.className = "flex-1 grid grid-cols-1 p-2 overflow-y-auto max-w-2xl mx-auto w-full";
+                mainGrid.className = "flex-1 grid grid-cols-1 p-1.5 overflow-hidden max-w-2xl mx-auto w-full min-h-0";
                 modeBadge.innerText = "1 PLAYER (SINGLE)";
-                modeBadge.className = "text-cyber-p1 text-[10px] px-1.5 py-0.5 rounded border border-cyber-p1/40 bg-cyber-p1/10";
+                modeBadge.className = "text-cyber-p1 text-[9px] px-1 py-0.5 rounded border border-cyber-p1/40 bg-cyber-p1/10";
             } else {
                 p2Container.classList.remove('hidden');
-                mainGrid.className = "flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 overflow-y-auto lg:overflow-hidden";
+                mainGrid.className = "flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 p-1.5 overflow-hidden min-h-0";
                 modeBadge.innerText = "2 PLAYER (DUAL TOUCH)";
-                modeBadge.className = "text-cyber-p2 text-[10px] px-1.5 py-0.5 rounded border border-cyber-p2/40 bg-cyber-p2/10";
+                modeBadge.className = "text-cyber-p2 text-[9px] px-1 py-0.5 rounded border border-cyber-p2/40 bg-cyber-p2/10";
 
                 document.getElementById('p2-label-name').innerText = player2Info.name.toUpperCase();
                 document.getElementById('p2-label-class').innerText = `Kelas: ${player2Info.class}`;
@@ -754,7 +756,7 @@
             document.getElementById('p1-cpu-header').colSpan = hasReg3_P1 ? 3 : 2;
 
             document.getElementById(`p1-status-msg`).innerText = 'Siap Diperiksa';
-            document.getElementById(`p1-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+            document.getElementById(`p1-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[9px]';
 
             if (currentGameMode === 'dual') {
                 const sc2 = getCurrentScenario(2);
@@ -770,7 +772,7 @@
                 document.getElementById('p2-cpu-header').colSpan = hasReg3_P2 ? 3 : 2;
 
                 document.getElementById(`p2-status-msg`).innerText = 'Siap Diperiksa';
-                document.getElementById(`p2-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+                document.getElementById(`p2-status-msg`).className = 'font-orbitron text-gray-300 font-bold text-[9px]';
             }
         }
 
@@ -797,14 +799,14 @@
 
                     const firstColHtml = `
                         <td class="text-left px-1 py-0.5 drop-zone" data-player="${player}" data-row="${i}">
-                            <div class="flex items-center gap-1 flex-wrap">
-                                <span class="text-gray-500 font-bold text-[8px] md:text-[9px] w-3">${i+1}.</span>
-                                <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border bg-cyan-950 border-cyan-500/60 text-cyan-300" data-slot="opcode">${line.opcode}</span>
-                                <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border ${line.arg1 ? 'bg-amber-950 border-amber-500/60 text-amber-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500'}" data-slot="arg1">${line.arg1 || '___'}</span>
+                            <div class="flex items-center gap-0.5 flex-wrap">
+                                <span class="text-gray-500 font-bold text-[8px] w-2.5">${i+1}.</span>
+                                <span class="drop-slot font-code text-[8px] font-bold px-1 py-0.5 rounded border bg-cyan-950 border-cyan-500/60 text-cyan-300" data-slot="opcode">${line.opcode}</span>
+                                <span class="drop-slot font-code text-[8px] font-bold px-1 py-0.5 rounded border ${line.arg1 ? 'bg-amber-950 border-amber-500/60 text-amber-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500'}" data-slot="arg1">${line.arg1 || '___'}</span>
                                 ${!isPrint ? `
-                                    <span class="drop-slot font-code text-[8px] md:text-[9px] font-bold px-1 py-0.5 rounded border ${isArith ? 'bg-indigo-950 border-indigo-500/60 text-indigo-300' : (line.arg2 ? 'bg-purple-950 border-purple-500/60 text-purple-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500')}" data-slot="arg2">${line.arg2 || (isArith ? 'REG2' : '___')}</span>
+                                    <span class="drop-slot font-code text-[8px] font-bold px-1 py-0.5 rounded border ${isArith ? 'bg-indigo-950 border-indigo-500/60 text-indigo-300' : (line.arg2 ? 'bg-purple-950 border-purple-500/60 text-purple-300' : 'bg-gray-900 border-dashed border-gray-600 text-gray-500')}" data-slot="arg2">${line.arg2 || (isArith ? 'REG2' : '___')}</span>
                                 ` : ''}
-                                <button onclick="removeLine(${player}, ${i})" class="text-gray-500 hover:text-red-400 ml-auto px-1 text-[10px]">
+                                <button onclick="removeLine(${player}, ${i})" class="text-gray-500 hover:text-red-400 ml-auto px-0.5 text-[9px]">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
@@ -815,7 +817,7 @@
                         tr.innerHTML = firstColHtml + `
                             <td colspan="${totalCols}">
                                 <div class="cell-drop-target cell-zone bg-yellow-950/40 border-yellow-500/50 text-yellow-300 font-bold" data-player="${player}" data-row="${i}" data-field="userM0" id="p${player}-m0-${i}">
-                                    <span class="text-[9px] mr-1 opacity-75"><i class="fa-solid fa-desktop mr-1"></i>MONITOR:</span> ${line.userM0 || '-'}
+                                    <span class="text-[8px] mr-1 opacity-75"><i class="fa-solid fa-desktop mr-1"></i>MONITOR:</span> ${line.userM0 || '-'}
                                 </div>
                             </td>
                         `;
@@ -832,8 +834,8 @@
                     }
                 } else {
                     tr.innerHTML = `
-                        <td class="text-left px-1 py-1 text-gray-500 italic drop-zone text-[8px] md:text-[9px]" data-player="${player}" data-row="${i}">
-                            <i class="fa-solid fa-plus text-[8px] mr-1 text-gray-600"></i>[Baris ${i+1}]
+                        <td class="text-left px-1 py-0.5 text-gray-500 italic drop-zone text-[8px]" data-player="${player}" data-row="${i}">
+                            <i class="fa-solid fa-plus text-[7px] mr-1 text-gray-600"></i>[Baris ${i+1}]
                         </td>
                         <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM0">-</div></td>
                         <td><div class="cell-drop-target cell-zone opacity-30" data-player="${player}" data-row="${i}" data-field="userM1">-</div></td>
@@ -872,11 +874,11 @@
 
             opcodes.forEach(item => {
                 const btn = document.createElement('div');
-                btn.className = `block-btn ${item.color} border text-[9px] font-code px-1.5 py-0.5 rounded font-bold shadow flex items-center gap-1 select-none`;
+                btn.className = `block-btn ${item.color} border text-[8px] font-code px-1 py-0.5 rounded font-bold shadow flex items-center gap-0.5 select-none`;
                 btn.setAttribute('data-type', 'opcode');
                 btn.setAttribute('data-val', item.op);
                 btn.setAttribute('data-player', player);
-                btn.innerHTML = `<i class="fa-solid fa-grip-vertical text-[8px] opacity-60"></i> ${item.op}`;
+                btn.innerHTML = `<i class="fa-solid fa-grip-vertical text-[7px] opacity-60"></i> ${item.op}`;
                 btn.onclick = (e) => {
                     if (isDragging) return;
                     handlePaletteClick(player, 'opcode', item.op, btn);
@@ -888,7 +890,7 @@
             const operands = [...sc.numbers, ...sc.memPrefixes, ...sc.registers, ...(sc.extraValues || [])];
             operands.forEach(op => {
                 const tag = document.createElement('div');
-                tag.className = `block-btn bg-gray-900 border border-gray-600 text-gray-200 text-[8px] md:text-[9px] font-code px-1.5 py-0.5 rounded shadow select-none`;
+                tag.className = `block-btn bg-gray-900 border border-gray-600 text-gray-200 text-[8px] font-code px-1 py-0.5 rounded shadow select-none`;
                 tag.setAttribute('data-type', 'operand');
                 tag.setAttribute('data-val', op);
                 tag.setAttribute('data-player', player);
@@ -906,7 +908,7 @@
 
             if (!playerPrograms[player][rowIdx]) {
                 playerPrograms[player][rowIdx] = {
-                    opcode: 'SIMPAN',
+                    opcode: '',
                     arg1: '',
                     arg2: '',
                     userM0: '-', userM1: '-', userM2: '-', userM3: '-',
@@ -976,7 +978,6 @@
             }
         }
 
-        // FITUR TAP DUA KALI / TOGGLE ISI DENGAN "-"
         function handleCellTap(cellEl) {
             if (isDragging) return;
             const player = parseInt(cellEl.getAttribute('data-player'));
@@ -986,7 +987,6 @@
 
             const currentVal = playerPrograms[player][rowIdx] ? String(playerPrograms[player][rowIdx][field] || '-').trim() : '-';
 
-            // Jika sel sudah terisi nilai selain '-' dan diklik lagi, ubah nilainya menjadi '-'
             if (currentVal && currentVal !== '-') {
                 applyValueToCell(player, rowIdx, field, '-');
             } else if (selected) {
@@ -1121,7 +1121,7 @@
             selectedBlockForPlayer[player] = null;
             const msgEl = document.getElementById(`p${player}-status-msg`);
             msgEl.innerText = 'Siap Diperiksa';
-            msgEl.className = 'font-orbitron text-gray-300 font-bold text-[10px] md:text-[11px]';
+            msgEl.className = 'font-orbitron text-gray-300 font-bold text-[9px]';
             renderLKPDTable(player);
             playSound('click');
         }
@@ -1130,7 +1130,6 @@
             const program = playerPrograms[player];
             const msgEl = document.getElementById(`p${player}-status-msg`);
 
-            // Bersihkan semua highlight warna sel lama sebelum validasi baru
             const tbody = document.getElementById(`p${player}-table-body`);
             if (tbody) {
                 tbody.querySelectorAll('.cell-zone').forEach(el => {
@@ -1140,7 +1139,7 @@
 
             if (!program || program.length === 0) {
                 msgEl.innerText = 'ERR: Program Kosong!';
-                msgEl.className = 'font-orbitron text-red-500 font-bold text-[10px] md:text-[11px]';
+                msgEl.className = 'font-orbitron text-red-500 font-bold text-[9px]';
                 playSound('error');
                 return;
             }
@@ -1157,10 +1156,27 @@
 
             for (let i = 0; i < program.length; i++) {
                 const line = program[i];
+
+                // PERBAIKAN FATAL ERROR: Jika baris belum ada / opcode belum diisi, lewati simulasi
+                if (!line || !line.opcode) {
+                    expectedStates.push({
+                        m0: String(memory[sc.memPrefixes[0]] !== undefined ? memory[sc.memPrefixes[0]] : '-').trim(),
+                        m1: String(memory[sc.memPrefixes[1]] !== undefined ? memory[sc.memPrefixes[1]] : '-').trim(),
+                        m2: String(memory[sc.memPrefixes[2]] !== undefined ? memory[sc.memPrefixes[2]] : '-').trim(),
+                        m3: String(memory[sc.memPrefixes[3]] !== undefined ? memory[sc.memPrefixes[3]] : '-').trim(),
+                        r1: String(registers['REG1'] !== undefined ? registers['REG1'] : '-').trim(),
+                        r2: String(registers['REG2'] !== undefined ? registers['REG2'] : '-').trim(),
+                        r3: String(registers['REG3'] !== undefined ? registers['REG3'] : '-').trim()
+                    });
+                    continue;
+                }
+
                 try {
                     switch (line.opcode) {
                         case 'SIMPAN': {
                             const val = parseInt(line.arg1);
+                            if (isNaN(val)) throw new Error(`Baris ${i+1}: Nilai '${line.arg1}' bukan angka!`);
+                            if (!line.arg2 || line.arg2 === '___') throw new Error(`Baris ${i+1}: Target memori belum diisi!`);
                             memory[line.arg2] = val;
                             break;
                         }
@@ -1193,7 +1209,7 @@
                         }
                         case 'BAGI': {
                             if (registers['REG1'] === '-' || registers['REG2'] === '-') throw new Error(`Baris ${i+1}: Register kosong!`);
-                            if (parseInt(registers['REG2']) === 0) throw new Error(`Baris ${i+1}: Div/0!`);
+                            if (parseInt(registers['REG2']) === 0) throw new Error(`Baris ${i+1}: Pembagian dengan Nol!`);
                             const resDiv = Math.floor(parseInt(registers['REG1']) / parseInt(registers['REG2']));
                             if (hasReg3) registers['REG3'] = resDiv; else registers['REG2'] = resDiv;
                             break;
@@ -1224,7 +1240,7 @@
 
             if (simError) {
                 msgEl.innerText = `ERR: ${simError}`;
-                msgEl.className = 'font-orbitron text-red-500 font-bold text-[10px] md:text-[11px]';
+                msgEl.className = 'font-orbitron text-red-500 font-bold text-[9px]';
                 playSound('error');
                 return;
             }
@@ -1233,6 +1249,7 @@
             let correctCells = 0;
 
             program.forEach((line, i) => {
+                if (!line || !line.opcode) return;
                 const exp = expectedStates[i];
 
                 if (line.opcode === 'PRINT') {
@@ -1282,11 +1299,11 @@
             });
 
             const isTargetPrinted = (String(printedValue).trim() === String(sc.target).trim());
-            const isAllCellsCorrect = (correctCells === totalCells);
+            const isAllCellsCorrect = (totalCells > 0 && correctCells === totalCells);
 
             if (isTargetPrinted && isAllCellsCorrect) {
                 msgEl.innerText = `BENAR! 100% (Printed: ${printedValue})`;
-                msgEl.className = 'font-orbitron text-cyber-green font-bold text-[10px] md:text-[11px]';
+                msgEl.className = 'font-orbitron text-cyber-green font-bold text-[9px]';
                 playSound('success');
 
                 if (player === 1) p1Score += 100;
@@ -1301,7 +1318,7 @@
                 if (!isAllCellsCorrect) failReason.push(`Tabel: ${correctCells}/${totalCells} Benar`);
 
                 msgEl.innerText = `SALAH: ${failReason.join(' | ')}`;
-                msgEl.className = 'font-orbitron text-cyber-p2 font-bold text-[10px] md:text-[11px]';
+                msgEl.className = 'font-orbitron text-cyber-p2 font-bold text-[9px]';
                 playSound('error');
             }
         }
@@ -1337,7 +1354,6 @@
             } catch (e) {}
         }
 
-        // FUNGSI HITUNG DURASI PENGERJAAN
         function getElapsedTimeFormatted() {
             if (!startTime) return "00:00";
             const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
@@ -1373,8 +1389,7 @@
 
         function fetchLeaderboardFromSheet() {
             const tbody = document.getElementById('leaderboardTbody');
-            
-            tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-cyber-yellow italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data dari Spreadsheet...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-cyber-yellow italic"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat data...</td></tr>`;
 
             fetch(DEFAULT_SHEET_URL)
                 .then(res => res.json())
@@ -1386,7 +1401,7 @@
                     }
                 })
                 .catch(err => {
-                    console.error("Gagal mengambil data dari Spreadsheet:", err);
+                    console.error("Gagal mengambil data:", err);
                     tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-red-400 italic">Gagal menghubungkan ke Spreadsheet</td></tr>`;
                 });
         }
@@ -1421,7 +1436,7 @@
         }
 
         function startTimer() {
-            startTime = Date.now(); // Catat waktu mulai pengerjaan
+            startTime = Date.now();
             timeLeft = TOTAL_GAME_TIME;
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
